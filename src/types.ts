@@ -103,3 +103,28 @@ export interface SavedProgressV1 {
   version: 1;
   completedDrillIds: string[];
 }
+
+export type QuizCategory = "patterns" | "data-structures" | "concepts" | "big-o";
+
+export interface QuizTopic {
+  id: string;
+  category: QuizCategory;
+  title: string;
+  description: string;
+  accent: string;
+  questionIds: string[];
+}
+
+export interface QuizQuestion {
+  id: string;
+  topicId: string;
+  prompt: string;
+  options: string[];
+  correctOption: number;
+  explanation: string;
+}
+
+export interface SavedQuizProgressV1 {
+  version: 1;
+  completedQuestionIds: string[];
+}

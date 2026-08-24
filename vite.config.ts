@@ -15,7 +15,7 @@ export default defineConfig({
     include: ["react", "react-dom", "react-dom/client"],
   },
   test: {
-    include: ["src/**/*.playground.{ts,tsx}"],
+    include: ["src/**/*.test.{ts,tsx}"],
     environment: "happy-dom",
     css: true,
   },
