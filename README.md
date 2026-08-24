@@ -4,6 +4,14 @@ Pattern Playground is a local, browser-based practice app for rebuilding common 
 
 Your submission is parsed in the browser and never executed or uploaded. The goal is to strengthen recall of the reusable shape of an algorithm, not to grade variable names or formatting.
 
+## Live demo
+
+Try Pattern Playground in your browser: [coding-pattern-playground.vercel.app](https://coding-pattern-playground.vercel.app/)
+
+Bookmark the app for quick access: [https://coding-pattern-playground.vercel.app/](https://coding-pattern-playground.vercel.app/)
+
+The deployed app and the local development version use the same client-side validation and local progress storage.
+
 ## Why use it?
 
 - Practice the structure of a solution without copying a finished answer.
