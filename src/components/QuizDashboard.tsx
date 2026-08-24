@@ -1,5 +1,7 @@
-import { ArrowRight, Check, RotateCcw } from "lucide-react";
+import { ArrowRight, Check, LayoutGrid, List, RotateCcw } from "lucide-react";
+import { useState } from "react";
 import { quizTopics, getQuizQuestions } from "../config/quizCatalog.config";
+import { loadQuizView, saveQuizView, type QuizView } from "../lib/quiz";
 
 interface Props {
   completedIds: string[];
@@ -8,7 +10,12 @@ interface Props {
 }
 
 export function QuizDashboard({ completedIds, onOpen, onReset }: Props) {
+  const [view, setView] = useState<QuizView>(() => loadQuizView());
   const total = quizTopics.reduce((count, topic) => count + topic.questionIds.length, 0);
+  const changeView = (nextView: QuizView) => {
+    setView(nextView);
+    saveQuizView(nextView);
+  };
   return (
     <main className="dashboard quiz-dashboard">
       <section className="hero">
@@ -17,9 +24,15 @@ export function QuizDashboard({ completedIds, onOpen, onReset }: Props) {
       </section>
       <section className="section-heading">
         <div><p className="overline">QUIZ LIBRARY</p><h2>Choose a topic</h2></div>
-        {completedIds.length > 0 && <button className="ghost-button" onClick={onReset}><RotateCcw size={15} /> Reset quiz progress</button>}
+        <div className="section-actions">
+          <div className="view-toggle" aria-label="Topic display view">
+            <button className={view === "card" ? "active" : ""} aria-label="View topics as cards" aria-pressed={view === "card"} onClick={() => changeView("card")}><LayoutGrid size={15} /></button>
+            <button className={view === "list" ? "active" : ""} aria-label="View topics as a list" aria-pressed={view === "list"} onClick={() => changeView("list")}><List size={15} /></button>
+          </div>
+          {completedIds.length > 0 && <button className="ghost-button" onClick={onReset}><RotateCcw size={15} /> Reset quiz progress</button>}
+        </div>
       </section>
-      <div className="pattern-grid quiz-topic-grid">
+      <div className={`pattern-grid quiz-topic-grid ${view === "list" ? "quiz-topic-list" : ""}`}>
         {quizTopics.map((topic, index) => {
           const questions = getQuizQuestions(topic.id);
           const completed = questions.filter((question) => completedIds.includes(question.id)).length;

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getQuizQuestions, quizQuestions, quizTopics } from "../config/quizCatalog.config";
 import { shuffleQuestion } from "../components/QuizWorkspace";
-import { clearQuizProgress, completeQuestion, evaluateAnswer, loadQuizProgress, QUIZ_PROGRESS_KEY, saveQuizProgress } from "./quiz";
+import { clearQuizProgress, completeQuestion, evaluateAnswer, loadQuizProgress, loadQuizView, QUIZ_PROGRESS_KEY, QUIZ_VIEW_KEY, saveQuizProgress, saveQuizView } from "./quiz";
 
 describe("quiz catalog and progress", () => {
   beforeEach(() => localStorage.clear());
@@ -42,5 +42,15 @@ describe("quiz catalog and progress", () => {
     expect(localStorage.getItem(QUIZ_PROGRESS_KEY)).toContain("question-1");
     expect(loadQuizProgress().completedQuestionIds).toEqual(["question-1"]);
     expect(clearQuizProgress()).toEqual({ version: 1, completedQuestionIds: [] });
+  });
+
+  it("loads and saves the quiz topic view preference", () => {
+    expect(loadQuizView()).toBe("card");
+    localStorage.setItem(QUIZ_VIEW_KEY, "list");
+    expect(loadQuizView()).toBe("list");
+    saveQuizView("card");
+    expect(localStorage.getItem(QUIZ_VIEW_KEY)).toBe("card");
+    localStorage.setItem(QUIZ_VIEW_KEY, "invalid");
+    expect(loadQuizView()).toBe("card");
   });
 });

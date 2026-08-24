@@ -1,8 +1,19 @@
 import type { QuizQuestion, SavedQuizProgressV1 } from "../types";
 
 export const QUIZ_PROGRESS_KEY = "pattern-playground:quiz-progress";
+export const QUIZ_VIEW_KEY = "pattern-playground:quiz-view";
+
+export type QuizView = "card" | "list";
 
 const emptyProgress = (): SavedQuizProgressV1 => ({ version: 1, completedQuestionIds: [] });
+
+export function loadQuizView(storage: Pick<Storage, "getItem"> = localStorage): QuizView {
+  return storage.getItem(QUIZ_VIEW_KEY) === "list" ? "list" : "card";
+}
+
+export function saveQuizView(view: QuizView, storage: Pick<Storage, "setItem"> = localStorage): void {
+  storage.setItem(QUIZ_VIEW_KEY, view);
+}
 
 export function loadQuizProgress(storage: Pick<Storage, "getItem"> = localStorage): SavedQuizProgressV1 {
   try {
