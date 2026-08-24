@@ -1,5 +1,25 @@
 {
   "name": "pattern-template-playground",
+  "description": "A local web playground for practicing coding-interview patterns from memory with deterministic, AST-based TypeScript validation.",
+  "keywords": [
+    "react",
+    "typescript",
+    "vite",
+    "coding-interview",
+    "algorithms",
+    "data-structures",
+    "leetcode",
+    "coding-practice",
+    "code-editor",
+    "abstract-syntax-tree",
+    "ast-validation",
+    "education",
+    "developer-tools"
+  ],
+  "author": {
+    "name": "Ravindra Singh Shah",
+    "url": "https://github.com/ravindrasinghshah"
+  },
   "private": true,
   "version": "0.1.0",
   "type": "module",
