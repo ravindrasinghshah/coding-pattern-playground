@@ -34,6 +34,7 @@ button { cursor: pointer; }
 .pattern-card { position: relative; overflow: hidden; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 28px; box-shadow: 0 8px 30px rgba(49, 43, 31, .04); }
 .card-number { position: absolute; right: -4px; top: -24px; font-family: "DM Mono"; font-size: 100px; color: rgba(25, 28, 22, .035); }
 .card-top { display: flex; gap: 12px; align-items: center; font: 10px "DM Mono"; color: var(--muted); text-transform: uppercase; }.mini-progress { width: 56px; height: 3px; background: #e4e1d8; border-radius: 4px; overflow: hidden; }.mini-progress i { display: block; height: 100%; background: #df684f; }
+.topic-reset { display: inline-flex; align-items: center; border: 0; padding: 2px; background: transparent; color: inherit; }.topic-reset:hover { color: #df684f; }
 .pattern-card h3 { font-size: 25px; margin: 31px 0 7px; }.pattern-card > p { color: var(--muted); font-size: 13px; line-height: 1.6; min-height: 42px; }
 .topic-start { width: 100%; margin-top: 24px; padding: 13px 0 0; border: 0; border-top: 1px solid var(--line); background: transparent; display: flex; justify-content: space-between; align-items: center; color: #454740; font-size: 12px; }.topic-start:hover { color: #df684f; }
 .quiz-topic-list { display: grid; grid-template-columns: 1fr; gap: 8px; }

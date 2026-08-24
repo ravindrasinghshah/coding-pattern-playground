@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getQuizQuestions, quizQuestions, quizTopics } from "../config/quizCatalog.config";
 import { shuffleQuestion } from "../components/QuizWorkspace";
-import { clearQuizProgress, completeQuestion, evaluateAnswer, loadQuizProgress, loadQuizView, QUIZ_PROGRESS_KEY, QUIZ_VIEW_KEY, saveQuizProgress, saveQuizView } from "./quiz";
+import { clearQuizProgress, clearQuizTopicProgress, completeQuestion, evaluateAnswer, loadQuizProgress, loadQuizView, QUIZ_PROGRESS_KEY, QUIZ_VIEW_KEY, saveQuizProgress, saveQuizView } from "./quiz";
 
 describe("quiz catalog and progress", () => {
   beforeEach(() => localStorage.clear());
@@ -42,6 +42,14 @@ describe("quiz catalog and progress", () => {
     expect(localStorage.getItem(QUIZ_PROGRESS_KEY)).toContain("question-1");
     expect(loadQuizProgress().completedQuestionIds).toEqual(["question-1"]);
     expect(clearQuizProgress()).toEqual({ version: 1, completedQuestionIds: [] });
+  });
+
+  it("clears only the selected topic's quiz progress", () => {
+    const progress = { version: 1 as const, completedQuestionIds: ["binary-search-01", "sorting-01", "unrelated"] };
+    expect(clearQuizTopicProgress(progress, ["binary-search-01", "sorting-02"])).toEqual({
+      version: 1,
+      completedQuestionIds: ["sorting-01", "unrelated"],
+    });
   });
 
   it("loads and saves the quiz topic view preference", () => {

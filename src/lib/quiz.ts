@@ -42,6 +42,14 @@ export function clearQuizProgress(storage: Pick<Storage, "removeItem"> = localSt
   return emptyProgress();
 }
 
+export function clearQuizTopicProgress(progress: SavedQuizProgressV1, questionIds: string[]): SavedQuizProgressV1 {
+  const topicQuestionIds = new Set(questionIds);
+  return {
+    version: 1,
+    completedQuestionIds: progress.completedQuestionIds.filter((id) => !topicQuestionIds.has(id)),
+  };
+}
+
 export function evaluateAnswer(question: QuizQuestion, selectedOption: number | null): boolean {
   return selectedOption !== null && selectedOption === question.correctOption;
 }

@@ -12,7 +12,7 @@ import {
   loadProgress,
   saveProgress,
 } from "./lib/progress";
-import { clearQuizProgress, completeQuestion, loadQuizProgress, saveQuizProgress } from "./lib/quiz";
+import { clearQuizProgress, clearQuizTopicProgress, completeQuestion, loadQuizProgress, saveQuizProgress } from "./lib/quiz";
 import type { SavedProgressV1, SavedQuizProgressV1 } from "./types";
 
 export default function App() {
@@ -51,6 +51,15 @@ export default function App() {
     if (!window.confirm("Reset all quiz progress? This cannot be undone.")) return;
     setQuizProgress(clearQuizProgress());
   };
+  const resetQuizTopicProgress = (topicId: string) => {
+    const topic = getQuizTopic(topicId);
+    if (!topic || !window.confirm(`Reset progress for ${topic.title}? This cannot be undone.`)) return;
+    setQuizProgress((current) => {
+      const next = clearQuizTopicProgress(current, topic.questionIds);
+      saveQuizProgress(next);
+      return next;
+    });
+  };
   const goToPage = (nextPage: "practice" | "quiz") => {
     setPage(nextPage);
     setActiveId(null);
@@ -82,7 +91,7 @@ export default function App() {
           onOpen={setActiveId}
           onReset={resetProgress}
         />
-      ) : activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => setActiveTopicId(null)} onComplete={markQuizComplete} /> : <QuizDashboard completedIds={knownQuizIds} onOpen={setActiveTopicId} onReset={resetQuizProgress} />}
+      ) : activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => setActiveTopicId(null)} onComplete={markQuizComplete} /> : <QuizDashboard completedIds={knownQuizIds} onOpen={setActiveTopicId} onReset={resetQuizProgress} onResetTopic={resetQuizTopicProgress} />}
       <footer>
         <span>Coding Pattern Playground @ {new Date().getFullYear()}</span>
         <span>Your code never leaves this browser.</span>
