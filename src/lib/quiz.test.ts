@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { getQuizQuestions, quizQuestions, quizTopics } from "../config/quizCatalog.config";
-import { shuffleQuestion } from "../components/QuizWorkspace";
+import { getInitialQuizQuestionIndex, shuffleQuestion } from "../components/QuizWorkspace";
 import { clearQuizProgress, clearQuizTopicProgress, completeQuestion, evaluateAnswer, loadQuizProgress, loadQuizView, QUIZ_PROGRESS_KEY, QUIZ_VIEW_KEY, saveQuizProgress, saveQuizView } from "./quiz";
 
 describe("quiz catalog and progress", () => {
@@ -33,6 +33,12 @@ describe("quiz catalog and progress", () => {
     vi.restoreAllMocks();
     expect(shuffled.options).not.toEqual(question.options);
     expect(shuffled.options[shuffled.correctOption]).toBe(question.options[question.correctOption]);
+  });
+
+  it("starts a revisited topic at its first incomplete question", () => {
+    const questions = getQuizQuestions("binary-search");
+    expect(getInitialQuizQuestionIndex(questions, [questions[0].id])).toBe(1);
+    expect(getInitialQuizQuestionIndex(questions, questions.map((question) => question.id))).toBe(0);
   });
 
   it("loads, deduplicates, saves, and clears isolated quiz progress", () => {

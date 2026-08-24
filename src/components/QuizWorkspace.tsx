@@ -18,12 +18,17 @@ export function shuffleQuestion(question: QuizQuestion): QuizQuestion {
   };
 }
 
+export function getInitialQuizQuestionIndex(questions: QuizQuestion[], completedIds: string[]): number {
+  const firstIncompleteIndex = questions.findIndex((question) => !completedIds.includes(question.id));
+  return firstIncompleteIndex === -1 ? 0 : firstIncompleteIndex;
+}
+
 export function QuizWorkspace({ topicTitle, questions, completedIds, onBack, onComplete }: Props) {
-  const [index, setIndex] = useState(0);
+  const [displayQuestions] = useState(() => questions.map(shuffleQuestion));
+  const [index, setIndex] = useState(() => getInitialQuizQuestionIndex(displayQuestions, completedIds));
   const [selected, setSelected] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [displayQuestions] = useState(() => questions.map(shuffleQuestion));
   const question = displayQuestions[index];
   if (!question) return null;
   const correct = evaluateAnswer(question, selected);
