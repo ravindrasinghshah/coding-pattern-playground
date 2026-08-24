@@ -1,8 +1,19 @@
 import type { QuizQuestion, SavedQuizProgressV1 } from "../types";
 
 export const QUIZ_PROGRESS_KEY = "pattern-playground:quiz-progress";
+export const QUIZ_VIEW_KEY = "pattern-playground:quiz-view";
+
+export type QuizView = "card" | "list";
 
 const emptyProgress = (): SavedQuizProgressV1 => ({ version: 1, completedQuestionIds: [] });
+
+export function loadQuizView(storage: Pick<Storage, "getItem"> = localStorage): QuizView {
+  return storage.getItem(QUIZ_VIEW_KEY) === "list" ? "list" : "card";
+}
+
+export function saveQuizView(view: QuizView, storage: Pick<Storage, "setItem"> = localStorage): void {
+  storage.setItem(QUIZ_VIEW_KEY, view);
+}
 
 export function loadQuizProgress(storage: Pick<Storage, "getItem"> = localStorage): SavedQuizProgressV1 {
   try {
@@ -29,6 +40,14 @@ export function completeQuestion(progress: SavedQuizProgressV1, questionId: stri
 export function clearQuizProgress(storage: Pick<Storage, "removeItem"> = localStorage): SavedQuizProgressV1 {
   storage.removeItem(QUIZ_PROGRESS_KEY);
   return emptyProgress();
+}
+
+export function clearQuizTopicProgress(progress: SavedQuizProgressV1, questionIds: string[]): SavedQuizProgressV1 {
+  const topicQuestionIds = new Set(questionIds);
+  return {
+    version: 1,
+    completedQuestionIds: progress.completedQuestionIds.filter((id) => !topicQuestionIds.has(id)),
+  };
 }
 
 export function evaluateAnswer(question: QuizQuestion, selectedOption: number | null): boolean {
