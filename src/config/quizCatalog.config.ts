@@ -1,0 +1,32 @@
+import type { QuizQuestion, QuizTopic } from "../types";
+
+export const quizTopics: QuizTopic[] = [
+  { id: "patterns", category: "patterns", title: "Coding Patterns", description: "Recognize the shape of an efficient solution.", accent: "coral", questionIds: ["pattern-sliding-window", "pattern-prefix-sum", "pattern-dfs"] },
+  { id: "data-structures", category: "data-structures", title: "Data Structures", description: "Choose the structure that fits the operation.", accent: "green", questionIds: ["structure-stack", "structure-hash-map", "structure-heap"] },
+  { id: "concepts", category: "concepts", title: "Algorithm Concepts", description: "Strengthen the ideas behind common algorithms.", accent: "amber", questionIds: ["concept-invariant", "concept-recursion", "concept-stable-sort"] },
+  { id: "big-o", category: "big-o", title: "Big-O Thinking", description: "Build intuition for time and space complexity.", accent: "blue", questionIds: ["big-o-binary-search", "big-o-nested-loop", "big-o-hash-lookup"] },
+];
+
+export const quizQuestions: QuizQuestion[] = [
+  { id: "pattern-sliding-window", topicId: "patterns", prompt: "Which pattern is best suited to maintaining a contiguous range while scanning an array?", options: ["Sliding window", "Binary tree recursion", "Monotonic stack", "Union-find"], correctOption: 0, explanation: "A sliding window expands and shrinks a contiguous range while maintaining the condition that matters to the problem." },
+  { id: "pattern-prefix-sum", topicId: "patterns", prompt: "What does a prefix sum let you calculate efficiently?", options: ["A range sum using two prefix values", "The height of any tree without traversal", "The next greater element in constant time", "A sorted array without comparisons"], correctOption: 0, explanation: "After preprocessing prefix sums, a range sum can be found by subtracting the prefix before the range from the prefix at its end." },
+  { id: "pattern-dfs", topicId: "patterns", prompt: "True or false: DFS visits every node on the entire left side before it can visit any node on the right side.", options: ["True", "False"], correctOption: 1, explanation: "False. DFS follows one branch deeply, but the exact order depends on the traversal and tree shape. A node's right subtree can be visited before another branch elsewhere is complete." },
+  { id: "structure-stack", topicId: "data-structures", prompt: "Which structure follows last-in, first-out order?", options: ["Stack", "Queue", "Min-heap", "Hash map"], correctOption: 0, explanation: "A stack removes the most recently added item first, which is last-in, first-out (LIFO)." },
+  { id: "structure-hash-map", topicId: "data-structures", prompt: "What is the average-case complexity of looking up a key in a well-sized hash map?", options: ["O(1)", "O(log n)", "O(n log n)", "O(n^2)"], correctOption: 0, explanation: "Hashing maps a key to a bucket, making lookup O(1) on average. Collisions and pathological inputs can make the worst case slower." },
+  { id: "structure-heap", topicId: "data-structures", prompt: "Which operation does a min-heap make efficient?", options: ["Reading the minimum element", "Searching every arbitrary value", "Reversing a linked list", "Checking whether a graph is connected"], correctOption: 0, explanation: "The smallest value is kept at the heap root, so reading it is O(1). Inserting and removing it are typically O(log n)." },
+  { id: "concept-invariant", topicId: "concepts", prompt: "What is a loop invariant?", options: ["A condition that remains true at a defined point in each iteration", "A loop that never terminates", "A variable that cannot be reassigned", "A guaranteed constant-time operation"], correctOption: 0, explanation: "An invariant gives a statement that stays true across iterations, helping prove that an algorithm maintains correctness." },
+  { id: "concept-recursion", topicId: "concepts", prompt: "What must a correct recursive algorithm include to stop calling itself?", options: ["A base case", "A hash map", "A nested loop", "A sorted input"], correctOption: 0, explanation: "The base case handles the smallest solvable input and prevents recursive calls from continuing forever." },
+  { id: "concept-stable-sort", topicId: "concepts", prompt: "What does it mean for a sorting algorithm to be stable?", options: ["Equal elements keep their original relative order", "The algorithm always runs in O(1)", "The input cannot contain duplicates", "The algorithm uses no extra memory"], correctOption: 0, explanation: "Stability preserves the original ordering of records with equal sort keys, which is useful for multi-step sorting." },
+  { id: "big-o-binary-search", topicId: "big-o", prompt: "Why is binary search O(log n) on a sorted array?", options: ["Each comparison discards about half of the remaining search space", "It checks every element exactly once", "It always uses a hash table", "It sorts the array during every lookup"], correctOption: 0, explanation: "Each comparison chooses one half to keep and discards the other. Repeatedly halving n reaches one item after about log2(n) steps." },
+  { id: "big-o-nested-loop", topicId: "big-o", prompt: "A loop over n items contains a separate loop over n items. What is the usual time complexity?", options: ["O(n^2)", "O(n)", "O(log n)", "O(1)"], correctOption: 0, explanation: "The inner loop can run n times for each of n outer iterations, producing n multiplied by n operations." },
+  { id: "big-o-hash-lookup", topicId: "big-o", prompt: "Which statement best distinguishes average and worst-case hash-map lookup?", options: ["Average O(1), with a slower worst case when collisions are excessive", "Average O(log n), worst case O(1)", "Both are always O(1)", "Average O(n^2), worst case O(log n)"], correctOption: 0, explanation: "Good hashing gives constant expected lookup time, but many collisions can force a bucket scan and degrade the worst case." },
+];
+
+export function getQuizTopic(topicId: string): QuizTopic | undefined {
+  return quizTopics.find((topic) => topic.id === topicId);
+}
+
+export function getQuizQuestions(topicId: string): QuizQuestion[] {
+  const topic = getQuizTopic(topicId);
+  return topic ? topic.questionIds.map((id) => quizQuestions.find((question) => question.id === id)).filter((question): question is QuizQuestion => Boolean(question)) : [];
+}
