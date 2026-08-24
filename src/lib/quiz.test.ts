@@ -16,18 +16,18 @@ describe("quiz catalog and progress", () => {
       expect(question.options[question.correctOption]).toBeTruthy();
       expect(question.explanation).toBeTruthy();
     });
-    expect(getQuizQuestions("big-o")).toHaveLength(3);
+    expect(getQuizQuestions("complexity-analysis")).toHaveLength(20);
   });
 
   it("evaluates only the selected correct option", () => {
-    const question = quizQuestions.find((item) => item.id === "big-o-binary-search")!;
+    const question = quizQuestions.find((item) => item.id === "binary-search-01")!;
     expect(evaluateAnswer(question, question.correctOption)).toBe(true);
     expect(evaluateAnswer(question, 1)).toBe(false);
     expect(evaluateAnswer(question, null)).toBe(false);
   });
 
   it("shuffles displayed options without changing the correct answer", () => {
-    const question = quizQuestions.find((item) => item.id === "big-o-binary-search")!;
+    const question = quizQuestions.find((item) => item.id === "binary-search-01")!;
     vi.spyOn(Math, "random").mockReturnValue(0);
     const shuffled = shuffleQuestion(question);
     vi.restoreAllMocks();
