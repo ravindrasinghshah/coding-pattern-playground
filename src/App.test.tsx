@@ -51,4 +51,30 @@ describe("App", () => {
     }
     expect(screen.getByLabelText(`0 of ${drills.length} drills completed`)).toBeInTheDocument();
   });
+
+  it("opens and closes the disclaimer", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Disclaimer" }));
+    expect(screen.getByRole("dialog", { name: "Disclaimer" })).toBeInTheDocument();
+    expect(screen.getByText(/your own discretion and risk/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close Disclaimer" }));
+    expect(screen.queryByRole("dialog", { name: "Disclaimer" })).not.toBeInTheDocument();
+  });
+
+  it("shows common questions in the FAQ", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "FAQ" }));
+    expect(screen.getByRole("dialog", { name: "Frequently asked questions" })).toBeInTheDocument();
+    expect(screen.getByText("Who can use this site?")).toBeInTheDocument();
+    expect(screen.getByText("Is it paid or free?")).toBeInTheDocument();
+    expect(screen.getByText("Is my code uploaded or stored?")).toBeInTheDocument();
+  });
+
+  it("invites visitors to contribute on GitHub", () => {
+    render(<App />);
+    expect(screen.getByRole("link", { name: /contribute on github/i })).toHaveAttribute(
+      "href",
+      "https://github.com/ravindrasinghshah/coding-pattern-playground",
+    );
+  });
 });
