@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
@@ -26,5 +26,19 @@ describe("App", () => {
     render(<App />);
     fireEvent.click(screen.getByRole("button", { name: /reverse a linked list/i }));
     expect(screen.getByRole("heading", { name: "Reverse a linked list" })).toBeInTheDocument();
+  });
+
+  it("renders and opens a newly added graph template", () => {
+    render(<App />);
+    const graphCard = screen.getByRole("heading", { name: "Graph" }).closest("article")!;
+    fireEvent.click(within(graphCard).getByRole("button", { name: /dfs, iterative/i }));
+    expect(screen.getByRole("heading", { name: "DFS, iterative" })).toBeInTheDocument();
+  });
+
+  it("places binary search immediately after monotonic stack", () => {
+    render(<App />);
+    const headings = screen.getAllByRole("heading", { level: 3 }).map((heading) => heading.textContent);
+    const stackIndex = headings.indexOf("Monotonic Stack");
+    expect(headings[stackIndex + 1]).toBe("Binary Search");
   });
 });

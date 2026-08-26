@@ -179,6 +179,26 @@ let fn = arr => {
 }
 ```
 
+### Monotonic decreasing stack
+
+```
+let fn = arr => {
+    let stack = [];
+    let ans = 0;
+
+    for (const num of arr) {
+        while (stack.length && stack[stack.length - 1] < num) {
+            // do logic
+            stack.pop();
+        }
+
+        stack.push(num);
+    }
+
+    return ans;
+}
+```
+
 ### Binary tree: DFS (recursive)
 
 ```
@@ -247,4 +267,276 @@ let fn = root => {
 
     return ans;
 }
+```
+
+### Graph: DFS (recursive)
+
+```
+let fn = graph => {
+    let dfs = node => {
+        let ans = 0;
+        // do some logic
+        for (const neighbor of graph[node]) {
+            if (!seen.has(neighbor)) {
+                seen.add(neighbor);
+                ans += dfs(neighbor);
+            }
+        }
+
+        return ans;
+    }
+
+    let seen = new Set([START_NODE]);
+    return dfs(START_NODE);
+}
+```
+
+### Graph: DFS (iterative)
+
+```
+let fn = graph => {
+    let stack = [START_NODE];
+    let seen = new Set([START_NODE]);
+    let ans = 0;
+
+    while (stack.length) {
+        let node = stack.pop();
+        // do some logic
+        for (const neighbor of graph[node]) {
+            if (!seen.has(neighbor)) {
+                seen.add(neighbor);
+                stack.push(neighbor);
+            }
+        }
+    }
+
+    return ans;
+}
+```
+
+### Graph: BFS
+
+```
+let fn = graph => {
+    let queue = [START_NODE];
+    let seen = new Set([START_NODE]);
+    let ans = 0;
+
+    while (queue.length) {
+        let currentLength = queue.length;
+        let nextQueue = [];
+
+        for (let i = 0; i < currentLength; i++) {
+            let node = queue[i];
+            // do some logic
+            for (const neighbor of graph[node]) {
+                if (!seen.has(neighbor)) {
+                    seen.add(neighbor);
+                    nextQueue.push(neighbor);
+                }
+            }
+        }
+
+        queue = nextQueue;
+    }
+
+    return ans;
+}
+```
+
+### Find top k elements with heap - using datastructures-js.info package
+
+```
+
+```
+
+### Binary search
+
+```
+let fn = (arr, target) => {
+    let left = 0;
+    let right = arr.length - 1;
+    while (left <= right) {
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] == target) {
+            // do something
+            return;
+        }
+        if (arr[mid] > target) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    // left is the insertion point
+    return left;
+}
+```
+
+### Binary search: duplicate elements, left-most insertion point
+
+```
+let fn = (arr, target) => {
+    let left = 0;
+    let right = arr.length;
+    while (left < right) {
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] >= target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+```
+
+### Binary search: duplicate elements, right-most insertion point
+
+```
+let fn = (arr, target) => {
+    let left = 0;
+    let right = arr.length;
+    while (left < right) {
+        let mid = Math.floor((left + right) / 2);
+        if (arr[mid] > target) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+```
+
+### Binary search: for greedy problems - if looking for a minimum
+
+```
+let fn = arr => {
+    let check = x => {
+        // this function is implemented depending on the problem
+        return BOOLEAN;
+    }
+
+    let left = MINIMUM_POSSIBLE_ANSWER;
+    let right = MAXMIMUM_POSSIBLE_ANSWER;
+    while (left <= right) {
+        let mid = Math.floor((left + right) / 2);
+        if (check(mid)) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+
+    return left;
+}
+```
+
+### Binary search: for greedy problems - if looking for a maximum
+
+```
+let fn = arr => {
+    let check = x => {
+        // this function is implemented depending on the problem
+        return BOOLEAN;
+    }
+
+    let left = MINIMUM_POSSIBLE_ANSWER;
+    let right = MAXMIMUM_POSSIBLE_ANSWER;
+    while (left <= right) {
+        let mid = Math.floor((left + right) / 2);
+        if (check(mid)) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+
+    return right;
+}
+```
+
+### Backtracking
+
+```
+let backtrack = (curr, OTHER_ARGUMENTS...) => {
+    if (BASE_CASE) {
+        // modify the answer
+        return;
+    }
+
+    let ans = 0;
+    for (ITERATE_OVER_INPUT) {
+        // modify the current state
+        ans += backtrack(curr, OTHER_ARGUMENTS...);
+        // undo the modification of the current state
+    }
+
+    return ans;
+}
+```
+
+### Dynamic programming: top-down memoization
+
+```
+let fn = arr => {
+    let dp = STATE => {
+        if (BASE_CASE) {
+            return 0;
+        }
+
+        if (memo[STATE] != -1) {
+            return memo[STATE];
+        }
+
+        let ans = RECURRENCE_RELATION(STATE);
+        memo[STATE] = ans;
+        return ans;
+    }
+
+    let memo = ARRAY_SIZED_ACCORDING_TO_STATE;
+    return dp(STATE_FOR_WHOLE_INPUT);
+}
+```
+
+### Build a trie
+
+```
+// note: using a class is only necessary if you want to store data at each node.
+// otherwise, you can implement a trie using only hash maps.
+class TrieNode {
+    constructor() {
+        // you can store data at nodes if you wish
+        this.data = null;
+        this.children = new Map();
+    }
+}
+
+let fn = words => {
+    let root = new TrieNode();
+    for (const word of words) {
+        let curr = root;
+        for (const c of word) {
+            if (!curr.children.has(c)) {
+                curr.children.set(c, new TrieNode());
+            }
+            curr = curr.children.get(c);
+        }
+
+        // at this point, you have a full word at curr
+        // you can perform more logic here to give curr an attribute if you want
+    }
+
+    return root;
+}
+```
+
+### Dijkstra's algorithm
+
+```
+
 ```

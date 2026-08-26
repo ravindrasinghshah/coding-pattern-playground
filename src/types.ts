@@ -5,7 +5,12 @@ export type PatternId =
   | "string-building"
   | "linked-list"
   | "monotonic-stack"
-  | "binary-tree";
+  | "binary-tree"
+  | "graph"
+  | "binary-search"
+  | "backtracking"
+  | "dynamic-programming"
+  | "trie";
 
 export type ValidationRuleId =
   | "two-index-initializers"
@@ -45,6 +50,26 @@ export type ValidationRuleId =
   | "captures-level-size"
   | "level-loop"
   | "replaces-level-queue"
+  | "visited-set"
+  | "graph-neighbor-loop"
+  | "recursive-neighbor-visit"
+  | "graph-worklist"
+  | "binary-search-bounds"
+  | "midpoint-calculation"
+  | "binary-search-updates"
+  | "target-comparison"
+  | "predicate-check"
+  | "base-case"
+  | "recursive-call"
+  | "state-change"
+  | "state-restore"
+  | "memo-initializer"
+  | "memo-lookup"
+  | "memo-write"
+  | "trie-root"
+  | "nested-character-loop"
+  | "trie-child-insert"
+  | "trie-cursor-advance"
   | "returns-value";
 
 export interface ValidationRule {
@@ -63,9 +88,21 @@ export type ValidatorVariant =
   | "fast-slow"
   | "reverse"
   | "increasing-stack"
+  | "decreasing-stack"
   | "dfs-recursive"
   | "dfs-iterative"
-  | "bfs-level-order";
+  | "bfs-level-order"
+  | "graph-dfs-recursive"
+  | "graph-dfs-iterative"
+  | "graph-bfs"
+  | "binary-search"
+  | "binary-search-left"
+  | "binary-search-right"
+  | "binary-search-minimum"
+  | "binary-search-maximum"
+  | "backtracking"
+  | "top-down-memoization"
+  | "trie-build";
 
 export interface ValidationDescriptorV1 {
   schemaVersion: 1;

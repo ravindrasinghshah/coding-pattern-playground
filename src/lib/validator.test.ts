@@ -68,6 +68,14 @@ const renamedRequirementVariants = [
     }
     return result;
   };`],
+  ["decreasing monotonic stack", "monotonic-stack-decreasing", `const inspect = (items: number[]) => {
+    const candidates: number[] = []; let result = 0;
+    for (const item of items) {
+      while (candidates.length !== 0 && item > candidates[candidates.length - 1]) candidates.pop();
+      candidates.push(item);
+    }
+    return result;
+  };`],
   ["recursive tree traversal", "binary-tree-dfs-recursive", `const visit = (node: any): number => {
     if (node === null) return 0;
     const a = visit(node.left), b = visit(node.right);
@@ -103,7 +111,7 @@ describe("validateDrill", () => {
     const codeBlocks = [...requirementsMarkdown.matchAll(/```(?:\w+)?\s*\r?\n([\s\S]*?)```/g)].map((match) => match[1]);
     const implementationCount = codeBlocks.reduce((count, code, index) => {
       const source = ts.createSourceFile(`requirement-${index}.ts`, code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-      return count + source.statements.reduce((statementCount, statement) => {
+      const parsed = source.statements.reduce((statementCount, statement) => {
         if (ts.isFunctionDeclaration(statement) && statement.body) return statementCount + 1;
         if (!ts.isVariableStatement(statement)) return statementCount;
         return statementCount + statement.declarationList.declarations.filter((declaration) => {
@@ -111,6 +119,11 @@ describe("validateDrill", () => {
           return Boolean(initializer && (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)));
         }).length;
       }, 0);
+      // The requirements intentionally use `OTHER_ARGUMENTS...` pseudocode in
+      // the backtracking signature, which TypeScript recovers without exposing
+      // the arrow function as a normal initializer. It still represents one
+      // executable template in the practice catalog.
+      return count + (parsed || (/\blet\s+backtrack\s*=/.test(code) ? 1 : 0));
     }, 0);
     expect(new Set(codeTemplateRequirementDrillIds).size).toBe(codeTemplateRequirementDrillIds.length);
     expect(codeTemplateRequirementDrillIds).toHaveLength(implementationCount);
@@ -365,6 +378,12 @@ describe("validateDrill", () => {
     expect(validateDrill(code, drillById("monotonic-stack-increasing")).valid).toBe(false);
   });
 
+  it("requires the decreasing-stack comparison direction", () => {
+    const drill = drillById("monotonic-stack-decreasing");
+    const code = drill.canonicalCode.replace("stack[stack.length - 1] < value", "stack[stack.length - 1] > value");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "monotonic-shrink-loop")?.passed).toBe(false);
+  });
+
   it("requires recursive DFS to visit both child sides", () => {
     const code = `function visit(node: any): number {
       if (!node) return 0;
@@ -385,6 +404,36 @@ describe("validateDrill", () => {
     }`;
     const result = validateDrill(code, drillById("binary-tree-dfs-iterative"));
     expect(result.checks.find((check) => check.ruleId === "visits-tree-children")?.passed).toBe(false);
+  });
+
+  it("requires graph traversal to track visited nodes", () => {
+    const drill = drillById("graph-dfs-iterative");
+    const code = drill.canonicalCode.replace("const seen = new Set<number>([start]);", "const seen = { has: () => false, add: () => undefined };");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "visited-set")?.passed).toBe(false);
+  });
+
+  it("requires both binary-search boundary updates", () => {
+    const drill = drillById("binary-search");
+    const code = drill.canonicalCode.replace("else left = mid + 1;", "else return mid;");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "binary-search-updates")?.passed).toBe(false);
+  });
+
+  it("requires backtracking to restore state after recursion", () => {
+    const drill = drillById("backtracking");
+    const code = drill.canonicalCode.replace("      path.pop();\n", "");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "state-restore")?.passed).toBe(false);
+  });
+
+  it("requires memoized recursion to write computed states", () => {
+    const drill = drillById("dynamic-programming-top-down");
+    const code = drill.canonicalCode.replace("    memo.set(index, answer);\n", "");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "memo-write")?.passed).toBe(false);
+  });
+
+  it("requires trie insertion to create missing children", () => {
+    const drill = drillById("trie-build");
+    const code = drill.canonicalCode.replace("        current.children.set(character, { children: new Map<string, any>() });", "        continue;");
+    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "trie-child-insert")?.passed).toBe(false);
   });
 
   it("reports missing concepts", () => {
