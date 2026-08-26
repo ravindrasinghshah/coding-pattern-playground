@@ -1,12 +1,12 @@
-# Pattern Playground
+# Introduction
 
-Pattern Playground is a local, browser-based practice app for rebuilding common coding-interview templates from memory. Pick a pattern, write the structure in TypeScript, and get deterministic feedback about the ideas that are present or missing.
+Coding Pattern Playground is a local, browser-based practice app for rebuilding common coding-interview templates from memory. Pick a pattern, write the structure in TypeScript, and get deterministic feedback about the ideas that are present or missing.
 
 Your submission is parsed in the browser and never executed or uploaded. The goal is to strengthen recall of the reusable shape of an algorithm, not to grade variable names or formatting.
 
 ## Live demo
 
-Try Pattern Playground in your browser: [interviewprep.ravindrasinghshah.com](https://interviewprep.ravindrasinghshah.com/)
+Try Coding Pattern Playground in your browser: [interviewprep.ravindrasinghshah.com](https://interviewprep.ravindrasinghshah.com/)
 
 Bookmark the app for quick access: [https://interviewprep.ravindrasinghshah.com/](https://interviewprep.ravindrasinghshah.com/)
 
@@ -19,20 +19,6 @@ The deployed app and the local development version use the same client-side vali
 - Use alternate variable names and formatting; validation is based on the syntax tree.
 - Reveal a canonical answer when you are stuck without automatically completing the drill.
 - Track completed drills locally with no account, backend, or AI service.
-
-## Practice library
-
-The current library contains 13 drills across seven patterns:
-
-| Pattern | What you practice |
-| --- | --- |
-| Two Pointers | Opposite ends; traversing and exhausting two inputs |
-| Sliding Window | Expanding a range and shrinking it while an invariant is broken |
-| Prefix Sum | Building a prefix array; counting exact subarrays with a frequency map |
-| String Building | Buffering characters and joining; direct concatenation |
-| Linked List | Fast/slow pointers; in-place reversal |
-| Monotonic Stack | Maintaining an increasing stack |
-| Binary Tree | Recursive DFS; iterative DFS; level-order BFS |
 
 ## How to use the app
 
@@ -94,10 +80,9 @@ Please keep content, validation behavior, and UI behavior separate. Avoid execut
 
 ### Add a drill to an existing pattern
 
-1. Add the canonical template and its heading to [`src/data/code-templates.md`](src/data/code-templates.md).
-2. Add the matching typed entry to [`src/config/practiceCatalog.config.ts`](src/config/practiceCatalog.config.ts), including its stable ID, prompt, explanation, reference link, rules, and versioned validation descriptor.
-3. Add canonical, alternate-format, and adversarial fixtures where the validator has meaningful edge cases.
-4. Run the test suite. Tests verify that source templates and catalog requirements stay in sync.
+1. Add the matching typed entry to [`src/config/practiceCatalog.config.ts`](src/config/practiceCatalog.config.ts), including its stable ID, prompt, explanation, reference link, rules, and versioned validation descriptor.
+2. Add canonical, alternate-format, and adversarial fixtures where the validator has meaningful edge cases.
+3. Run the test suite. Tests verify that source templates and catalog requirements stay in sync.
 
 ### Add a new pattern
 
@@ -144,4 +129,4 @@ src/
 
 ## Privacy and scope
 
-Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser, and only completed drill IDs are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
+Coding Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser, and only completed drill IDs are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
