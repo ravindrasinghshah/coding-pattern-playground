@@ -7,6 +7,11 @@ import { prefixSumValidator } from "./patterns/prefixSum.validator";
 import { slidingWindowValidator } from "./patterns/slidingWindow.validator";
 import { stringBuildingValidator } from "./patterns/stringBuilding.validator";
 import { twoPointersValidator } from "./patterns/twoPointers.validator";
+import { backtrackingValidator } from "./patterns/backtracking.validator";
+import { binarySearchValidator } from "./patterns/binarySearch.validator";
+import { dynamicProgrammingValidator } from "./patterns/dynamicProgramming.validator";
+import { graphValidator } from "./patterns/graph.validator";
+import { trieValidator } from "./patterns/trie.validator";
 import type { PatternValidator, RuleValidator } from "./types";
 
 const patternValidators = new Map<string, PatternValidator>([
@@ -17,6 +22,11 @@ const patternValidators = new Map<string, PatternValidator>([
   [linkedListValidator.patternId, linkedListValidator],
   [monotonicStackValidator.patternId, monotonicStackValidator],
   [binaryTreeValidator.patternId, binaryTreeValidator],
+  [graphValidator.patternId, graphValidator],
+  [binarySearchValidator.patternId, binarySearchValidator],
+  [backtrackingValidator.patternId, backtrackingValidator],
+  [dynamicProgrammingValidator.patternId, dynamicProgrammingValidator],
+  [trieValidator.patternId, trieValidator],
 ]);
 
 const commonRules: Partial<Record<ValidationRuleId, RuleValidator>> = commonRuleValidators;

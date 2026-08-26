@@ -19,6 +19,7 @@ export interface PatternInfo {
   title: string;
   description: string;
   accent: string;
+  comingSoon?: boolean;
 }
 
 export const patternInfo: Record<PatternId, PatternInfo> = {
@@ -52,10 +53,27 @@ export const patternInfo: Record<PatternId, PatternInfo> = {
     description: "Keep only candidates that can still answer a later query.",
     accent: "blue",
   },
+  "binary-search": { title: "Binary Search", description: "Discard half of an ordered search space after each check.", accent: "blue" },
   "binary-tree": {
     title: "Binary Tree",
     description: "Traverse hierarchical data recursively or with explicit worklists.",
     accent: "plum",
+  },
+  graph: { title: "Graph", description: "Traverse connected nodes while preventing repeated visits.", accent: "green" },
+  heap: {
+    title: "Find top K elements with heap",
+    description: "Maintain the strongest K candidates efficiently with a bounded priority queue.",
+    accent: "rose",
+    comingSoon: true,
+  },
+  backtracking: { title: "Backtracking", description: "Explore choices recursively and restore state between branches.", accent: "coral" },
+  "dynamic-programming": { title: "Dynamic Programming", description: "Cache overlapping recursive states to avoid repeated work.", accent: "violet" },
+  trie: { title: "Trie", description: "Represent strings as paths through character-indexed nodes.", accent: "amber" },
+  "shortest-path": {
+    title: "Dijkstra's algorithm",
+    description: "Find shortest paths from a source across a weighted graph with non-negative edges.",
+    accent: "plum",
+    comingSoon: true,
   },
 };
 
@@ -290,6 +308,32 @@ function reverseList(head: ListNode | null) {
     rules: [rule("stack-initializer", "Initialize an empty stack."), rule("iterates-input", "Visit every input value."), rule("monotonic-shrink-loop", "Shrink while the stack top violates the monotonic order."), rule("stack-pop", "Pop invalid stack candidates inside the shrink loop."), rule("stack-push", "Push the current value after shrinking."), ...returns],
   },
   {
+    id: "monotonic-stack-decreasing", patternId: "monotonic-stack", eyebrow: "STACK 02", title: "Monotonic decreasing stack",
+    validation: { schemaVersion: 1, variant: "decreasing-stack" },
+    prompt: "Maintain a decreasing stack by removing smaller top values before pushing each new input value.",
+    starterCode: `function scan(values: number[]) {
+  // Maintain a decreasing monotonic stack
+
+  return 0;
+}`,
+    canonicalCode: `function scan(values: number[]) {
+  const stack: number[] = [];
+  let answer = 0;
+
+  for (const value of values) {
+    while (stack.length && stack[stack.length - 1] < value) {
+      stack.pop();
+    }
+    stack.push(value);
+  }
+
+  return answer;
+}`,
+    explanation: "Pop smaller values that violate decreasing order, then push the current value after restoring the invariant.",
+    referenceUrl: "https://leetcode.com/tag/monotonic-stack/",
+    rules: [rule("stack-initializer", "Initialize an empty stack."), rule("iterates-input", "Visit every input value."), rule("monotonic-shrink-loop", "Shrink while the stack top is smaller than the current value."), rule("stack-pop", "Pop invalid stack candidates inside the shrink loop."), rule("stack-push", "Push the current value after shrinking."), ...returns],
+  },
+  {
     id: "binary-tree-dfs-recursive", patternId: "binary-tree", eyebrow: "TREE 01", title: "DFS, recursive",
     validation: { schemaVersion: 1, variant: "dfs-recursive" },
     prompt: "Write recursive depth-first traversal with a null base case and visits to both child subtrees.",
@@ -388,6 +432,69 @@ function bfs(root: TreeNode) {
     referenceUrl: "https://leetcode.com/tag/breadth-first-search/",
     rules: [rule("level-queue", "Seed a queue with the root and process it while non-empty."), rule("captures-level-size", "Snapshot the current queue length before processing the level."), rule("level-loop", "Use the snapshot to process exactly one level."), rule("visits-tree-children", "Guard and enqueue both children for the next level."), rule("replaces-level-queue", "Replace the current queue with the completed next-level queue."), ...returns],
   },
+  {
+    id: "graph-dfs-recursive", patternId: "graph", eyebrow: "GRAPH 01", title: "DFS, recursive",
+    validation: { schemaVersion: 1, variant: "graph-dfs-recursive" },
+    prompt: "Traverse a graph recursively, marking each neighbor before visiting it.",
+    starterCode: `function traverse(graph: number[][], start: number) {\n  // Visit reachable nodes recursively\n\n  return 0;\n}`,
+    canonicalCode: `function traverse(graph: number[][], start: number) {\n  const seen = new Set<number>([start]);\n  function dfs(node: number): number {\n    let answer = 0;\n    for (const neighbor of graph[node]) {\n      if (!seen.has(neighbor)) {\n        seen.add(neighbor);\n        answer += dfs(neighbor);\n      }\n    }\n    return answer;\n  }\n  return dfs(start);\n}`,
+    explanation: "The visited set guarantees that recursive traversal processes every reachable vertex at most once.", referenceUrl: "https://leetcode.com/tag/depth-first-search/",
+    rules: [rule("visited-set", "Seed a visited set with the start node."), rule("graph-neighbor-loop", "Iterate over the current node's neighbors."), rule("recursive-neighbor-visit", "Mark and recursively visit unseen neighbors."), ...returns],
+  },
+  {
+    id: "graph-dfs-iterative", patternId: "graph", eyebrow: "GRAPH 02", title: "DFS, iterative",
+    validation: { schemaVersion: 1, variant: "graph-dfs-iterative" },
+    prompt: "Traverse a graph with a stack and add unseen neighbors to the worklist.",
+    starterCode: `function traverse(graph: number[][], start: number) {\n  // Traverse with a stack and visited set\n\n  return 0;\n}`,
+    canonicalCode: `function traverse(graph: number[][], start: number) {\n  const stack = [start];\n  const seen = new Set<number>([start]);\n  let answer = 0;\n  while (stack.length) {\n    const node = stack.pop()!;\n    for (const neighbor of graph[node]) {\n      if (!seen.has(neighbor)) {\n        seen.add(neighbor);\n        stack.push(neighbor);\n      }\n    }\n  }\n  return answer;\n}`,
+    explanation: "An explicit LIFO worklist performs depth-first traversal without recursion.", referenceUrl: "https://leetcode.com/tag/depth-first-search/",
+    rules: [rule("visited-set", "Seed a visited set with the start node."), rule("graph-worklist", "Seed and consume a stack."), rule("graph-neighbor-loop", "Iterate over neighbors and add unseen nodes."), ...returns],
+  },
+  {
+    id: "graph-bfs", patternId: "graph", eyebrow: "GRAPH 03", title: "BFS by level",
+    validation: { schemaVersion: 1, variant: "graph-bfs" },
+    prompt: "Traverse a graph breadth-first, building a fresh queue for each level.",
+    starterCode: `function traverse(graph: number[][], start: number) {\n  // Process graph nodes one breadth at a time\n\n  return 0;\n}`,
+    canonicalCode: `function traverse(graph: number[][], start: number) {\n  let queue = [start];\n  const seen = new Set<number>([start]);\n  let answer = 0;\n  while (queue.length) {\n    const currentLength = queue.length;\n    const nextQueue: number[] = [];\n    for (let i = 0; i < currentLength; i++) {\n      const node = queue[i];\n      for (const neighbor of graph[node]) {\n        if (!seen.has(neighbor)) {\n          seen.add(neighbor);\n          nextQueue.push(neighbor);\n        }\n      }\n    }\n    queue = nextQueue;\n  }\n  return answer;\n}`,
+    explanation: "Replacing the queue after each breadth preserves level boundaries.", referenceUrl: "https://leetcode.com/tag/breadth-first-search/",
+    rules: [rule("visited-set", "Seed a visited set with the start node."), rule("graph-worklist", "Seed and replace a breadth-first queue."), rule("graph-neighbor-loop", "Iterate over neighbors and enqueue unseen nodes."), rule("captures-level-size", "Snapshot the current breadth."), ...returns],
+  },
+  ...[
+    { id: "binary-search", title: "Binary search", eyebrow: "SEARCH 01", variant: "binary-search" as const, prompt: "Find a target in a sorted array and return its insertion point when absent.", code: `function search(values: number[], target: number) {\n  let left = 0, right = values.length - 1;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (values[mid] === target) return mid;\n    if (values[mid] > target) right = mid - 1;\n    else left = mid + 1;\n  }\n  return left;\n}` },
+    { id: "binary-search-left", title: "Left-most insertion point", eyebrow: "SEARCH 02", variant: "binary-search-left" as const, prompt: "Find the left-most insertion point among duplicate values.", code: `function lowerBound(values: number[], target: number) {\n  let left = 0, right = values.length;\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    if (values[mid] >= target) right = mid;\n    else left = mid + 1;\n  }\n  return left;\n}` },
+    { id: "binary-search-right", title: "Right-most insertion point", eyebrow: "SEARCH 03", variant: "binary-search-right" as const, prompt: "Find the insertion point after existing duplicate values.", code: `function upperBound(values: number[], target: number) {\n  let left = 0, right = values.length;\n  while (left < right) {\n    const mid = Math.floor((left + right) / 2);\n    if (values[mid] > target) right = mid;\n    else left = mid + 1;\n  }\n  return left;\n}` },
+    { id: "binary-search-minimum", title: "Minimum feasible answer", eyebrow: "SEARCH 04", variant: "binary-search-minimum" as const, prompt: "Binary-search an answer space for the minimum value satisfying a predicate.", code: `function minimumAnswer(low: number, high: number, check: (value: number) => boolean) {\n  let left = low, right = high;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (check(mid)) right = mid - 1;\n    else left = mid + 1;\n  }\n  return left;\n}` },
+    { id: "binary-search-maximum", title: "Maximum feasible answer", eyebrow: "SEARCH 05", variant: "binary-search-maximum" as const, prompt: "Binary-search an answer space for the maximum value satisfying a predicate.", code: `function maximumAnswer(low: number, high: number, check: (value: number) => boolean) {\n  let left = low, right = high;\n  while (left <= right) {\n    const mid = Math.floor((left + right) / 2);\n    if (check(mid)) left = mid + 1;\n    else right = mid - 1;\n  }\n  return right;\n}` },
+  ].map(({ id, title, eyebrow, variant, prompt, code }): TemplateDrill => ({
+    id, patternId: "binary-search", eyebrow, title, validation: { schemaVersion: 1, variant }, prompt,
+    starterCode: `function search(values: number[], target: number) {\n  // Narrow the search interval\n\n  return 0;\n}`,
+    canonicalCode: code, explanation: "Each comparison removes a portion of the remaining ordered search space.", referenceUrl: "https://leetcode.com/tag/binary-search/",
+    rules: [rule("binary-search-bounds", "Initialize and loop over two search bounds."), rule("midpoint-calculation", "Calculate a midpoint from both bounds."), rule("binary-search-updates", "Move both bounds in the correct directions."), rule(variant.includes("minimum") || variant.includes("maximum") ? "predicate-check" : "target-comparison", "Use the midpoint to choose a search half."), ...returns],
+  })),
+  {
+    id: "backtracking", patternId: "backtracking", eyebrow: "RECURSION 01", title: "Backtracking",
+    validation: { schemaVersion: 1, variant: "backtracking" }, prompt: "Explore each choice recursively, then undo its state change.",
+    starterCode: `function generate(values: number[]) {\n  // Choose, recurse, and undo\n\n  return 0;\n}`,
+    canonicalCode: `function generate(values: number[]) {\n  const path: number[] = [];\n  let answer = 0;\n  function backtrack(index: number) {\n    if (index === values.length) { answer++; return; }\n    for (let i = index; i < values.length; i++) {\n      path.push(values[i]);\n      backtrack(i + 1);\n      path.pop();\n    }\n  }\n  backtrack(0);\n  return answer;\n}`,
+    explanation: "Every recursive choice is paired with an inverse operation so sibling branches start from the same state.", referenceUrl: "https://leetcode.com/tag/backtracking/",
+    rules: [rule("base-case", "Stop recursion at a base case."), rule("recursive-call", "Recurse while exploring choices."), rule("state-change", "Modify the current state before recursion."), rule("state-restore", "Undo the modification after recursion."), ...returns],
+  },
+  {
+    id: "dynamic-programming-top-down", patternId: "dynamic-programming", eyebrow: "DP 01", title: "Top-down memoization",
+    validation: { schemaVersion: 1, variant: "top-down-memoization" }, prompt: "Cache recursive state results and reuse them before evaluating the recurrence again.",
+    starterCode: `function solve(values: number[]) {\n  // Add a memoized recursive helper\n\n  return 0;\n}`,
+    canonicalCode: `function solve(values: number[]) {\n  const memo = new Map<number, number>();\n  function dp(index: number): number {\n    if (index >= values.length) return 0;\n    if (memo.has(index)) return memo.get(index)!;\n    const answer = values[index] + dp(index + 1);\n    memo.set(index, answer);\n    return answer;\n  }\n  return dp(0);\n}`,
+    explanation: "The cache turns repeated recursive states into constant-time lookups.", referenceUrl: "https://leetcode.com/tag/dynamic-programming/",
+    rules: [rule("base-case", "Return from a terminal state."), rule("recursive-call", "Evaluate a recurrence recursively."), rule("memo-initializer", "Initialize a memo store."), rule("memo-lookup", "Return an already cached state."), rule("memo-write", "Cache a newly computed state."), ...returns],
+  },
+  {
+    id: "trie-build", patternId: "trie", eyebrow: "TRIE 01", title: "Build a trie",
+    validation: { schemaVersion: 1, variant: "trie-build" }, prompt: "Insert every word one character at a time, creating missing child nodes.",
+    starterCode: `function buildTrie(words: string[]) {\n  // Build character paths for every word\n\n  return null;\n}`,
+    canonicalCode: `function buildTrie(words: string[]) {\n  const root = { children: new Map<string, any>() };\n  for (const word of words) {\n    let current = root;\n    for (const character of word) {\n      if (!current.children.has(character)) {\n        current.children.set(character, { children: new Map<string, any>() });\n      }\n      current = current.children.get(character);\n    }\n  }\n  return root;\n}`,
+    explanation: "Each character follows or creates one edge, so shared prefixes reuse the same path.", referenceUrl: "https://leetcode.com/tag/trie/",
+    rules: [rule("trie-root", "Initialize a root with a child map."), rule("nested-character-loop", "Iterate through words and their characters."), rule("trie-child-insert", "Create a missing child entry."), rule("trie-cursor-advance", "Advance the cursor to the selected child."), ...returns],
+  },
 ];
 
 /** Drills implementing the current requirements in src/data/code-templates.md. */
@@ -402,7 +509,19 @@ export const codeTemplateRequirementDrillIds = [
   "linked-list-reverse",
   "prefix-sum-exact-subarrays",
   "monotonic-stack-increasing",
+  "monotonic-stack-decreasing",
   "binary-tree-dfs-recursive",
   "binary-tree-dfs-iterative",
   "binary-tree-bfs",
+  "graph-dfs-recursive",
+  "graph-dfs-iterative",
+  "graph-bfs",
+  "binary-search",
+  "binary-search-left",
+  "binary-search-right",
+  "binary-search-minimum",
+  "binary-search-maximum",
+  "backtracking",
+  "dynamic-programming-top-down",
+  "trie-build",
 ] as const;

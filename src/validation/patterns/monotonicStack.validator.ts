@@ -122,45 +122,53 @@ function sideUsesItem(expression: ts.Expression, item: string, context: Validati
   return resolvedIdentifiers(expression, context).has(item);
 }
 
-function hasIncreasingComparison(
+function hasMonotonicComparison(
   expression: ts.Expression,
   stack: string,
   item: string,
   context: ValidationContext,
+  decreasing: boolean,
 ): boolean {
   let found = false;
   walk(expression, (node) => {
     if (!ts.isBinaryExpression(node)) return;
     const topOnLeft = isLastStackElement(node.left, stack) && sideUsesItem(node.right, item, context);
     const topOnRight = isLastStackElement(node.right, stack) && sideUsesItem(node.left, item, context);
-    if (topOnLeft && [ts.SyntaxKind.GreaterThanToken, ts.SyntaxKind.GreaterThanEqualsToken].includes(node.operatorToken.kind)) {
+    const topOnLeftOperators = decreasing
+      ? [ts.SyntaxKind.LessThanToken, ts.SyntaxKind.LessThanEqualsToken]
+      : [ts.SyntaxKind.GreaterThanToken, ts.SyntaxKind.GreaterThanEqualsToken];
+    const topOnRightOperators = decreasing
+      ? [ts.SyntaxKind.GreaterThanToken, ts.SyntaxKind.GreaterThanEqualsToken]
+      : [ts.SyntaxKind.LessThanToken, ts.SyntaxKind.LessThanEqualsToken];
+    if (topOnLeft && topOnLeftOperators.includes(node.operatorToken.kind)) {
       found = true;
     }
-    if (topOnRight && [ts.SyntaxKind.LessThanToken, ts.SyntaxKind.LessThanEqualsToken].includes(node.operatorToken.kind)) {
+    if (topOnRight && topOnRightOperators.includes(node.operatorToken.kind)) {
       found = true;
     }
   });
   return found;
 }
 
-function hasGuardedIncreasingComparison(
+function hasGuardedMonotonicComparison(
   expression: ts.Expression,
   stack: string,
   item: string,
   context: ValidationContext,
+  decreasing: boolean,
 ): boolean {
   const parts = conjunctionParts(expression);
   const guardIndex = parts.findIndex((part) => hasNonEmptyGuard(part, stack));
-  const comparisonIndex = parts.findIndex((part) => hasIncreasingComparison(part, stack, item, context));
+  const comparisonIndex = parts.findIndex((part) => hasMonotonicComparison(part, stack, item, context, decreasing));
   return guardIndex >= 0 && comparisonIndex > guardIndex;
 }
 
-function shrinkModels(context: ValidationContext): ShrinkModel[] {
+function shrinkModels(context: ValidationContext, decreasing: boolean): ShrinkModel[] {
   const results: ShrinkModel[] = [];
   for (const traversal of traversals(context)) {
     for (const loop of context.loops) {
       if ((!ts.isWhileStatement(loop) && !ts.isDoStatement(loop)) || !isDescendantOf(loop, traversal.loop)) continue;
-      if (hasGuardedIncreasingComparison(loop.expression, traversal.stack, traversal.item, context)) {
+      if (hasGuardedMonotonicComparison(loop.expression, traversal.stack, traversal.item, context, decreasing)) {
         results.push({ ...traversal, shrink: loop });
       }
     }
@@ -185,15 +193,16 @@ const stackInitializer: RuleValidator = (context) => stackNames(context).length 
 
 const iteratesInput: RuleValidator = (context) => traversals(context).length > 0;
 
-const monotonicShrinkLoop: RuleValidator = (context) => shrinkModels(context).length > 0;
+const isDecreasing = (drill: Parameters<RuleValidator>[1]) => drill.validation.variant === "decreasing-stack";
+const monotonicShrinkLoop: RuleValidator = (context, drill) => shrinkModels(context, isDecreasing(drill)).length > 0;
 
-const stackPop: RuleValidator = (context) => shrinkModels(context).some((model) => {
+const stackPop: RuleValidator = (context, drill) => shrinkModels(context, isDecreasing(drill)).some((model) => {
   return callsWithin(model.shrink.statement).some((call) => isCallOn(call, model.stack, "pop")
     && call.arguments.length === 0
     && isDirectLoopStatement(call, model.shrink));
 });
 
-const stackPush: RuleValidator = (context) => shrinkModels(context).some((model) => {
+const stackPush: RuleValidator = (context, drill) => shrinkModels(context, isDecreasing(drill)).some((model) => {
   return callsWithin(model.loop.statement).some((call) => isCallOn(call, model.stack, "push")
     && !isDescendantOf(call, model.shrink)
     && call.getStart(context.source) >= model.shrink.end
@@ -206,6 +215,13 @@ export const monotonicStackValidator: PatternValidator = {
   patternId: "monotonic-stack",
   variants: {
     "increasing-stack": {
+      "stack-initializer": stackInitializer,
+      "iterates-input": iteratesInput,
+      "monotonic-shrink-loop": monotonicShrinkLoop,
+      "stack-pop": stackPop,
+      "stack-push": stackPush,
+    },
+    "decreasing-stack": {
       "stack-initializer": stackInitializer,
       "iterates-input": iteratesInput,
       "monotonic-shrink-loop": monotonicShrinkLoop,
