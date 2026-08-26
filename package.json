@@ -20,6 +20,14 @@
     "name": "Ravindra Singh Shah",
     "url": "https://github.com/ravindrasinghshah"
   },
+  "homepage": "https://interviewprep.ravindrasinghshah.com/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ravindrasinghshah/coding-pattern-playground.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ravindrasinghshah/coding-pattern-playground/issues"
+  },
   "private": true,
   "version": "0.1.0",
   "type": "module",

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Braces, Github, Quote } from "lucide-react";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
@@ -24,6 +24,7 @@ import {
   loadQuizProgress,
   saveQuizProgress,
 } from "./lib/quiz";
+import { trackPageView } from "./lib/analytics";
 import type { SavedProgressV1, SavedQuizProgressV1 } from "./types";
 
 export default function App() {
@@ -39,6 +40,16 @@ export default function App() {
   );
   const active = drills.find((drill) => drill.id === activeId);
   const activeTopic = activeTopicId ? getQuizTopic(activeTopicId) : undefined;
+  useEffect(() => {
+    if (page === "practice" && active) {
+      trackPageView(`/practice/${active.id}`, `${active.title} | Coding Pattern Playground`);
+    } else if (page === "quiz" && activeTopic) {
+      trackPageView(`/quiz/${activeTopic.id}`, `${activeTopic.title} Quiz | Coding Pattern Playground`);
+    } else {
+      const section = page === "practice" ? "Practice" : "Quiz";
+      trackPageView(`/${page}`, `${section} | Coding Pattern Playground`);
+    }
+  }, [page, active, activeTopic]);
   const knownQuizIds = quizProgress.completedQuestionIds.filter((id) =>
     quizQuestions.some((question) => question.id === id),
   );
@@ -241,8 +252,10 @@ export default function App() {
             <details>
               <summary>Is my code uploaded or stored?</summary>
               <p>
-                No. Validation runs in your browser, and your practice progress
-                is stored only in your browser's local storage.
+                Your code is not uploaded or stored. Validation runs in your
+                browser, and practice progress stays in your browser's local
+                storage. Google Analytics measures general site usage, but
+                entered code is never included in analytics events.
               </p>
             </details>
             <details>

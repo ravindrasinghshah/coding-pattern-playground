@@ -6,11 +6,11 @@ Your submission is parsed in the browser and never executed or uploaded. The goa
 
 ## Live demo
 
-Try Pattern Playground in your browser: [coding-pattern-playground.vercel.app](https://coding-pattern-playground.vercel.app/)
+Try Pattern Playground in your browser: [interviewprep.ravindrasinghshah.com](https://interviewprep.ravindrasinghshah.com/)
 
-Bookmark the app for quick access: [https://coding-pattern-playground.vercel.app/](https://coding-pattern-playground.vercel.app/)
+Bookmark the app for quick access: [https://interviewprep.ravindrasinghshah.com/](https://interviewprep.ravindrasinghshah.com/)
 
-The deployed app and the local development version use the same client-side validation and local progress storage.
+The deployed app and the local development version use the same client-side validation and local progress storage. The deployed site uses Google Analytics for general usage measurement; code entered in the editor is never included in analytics events.
 
 ## Why use it?
 
@@ -144,4 +144,4 @@ src/
 
 ## Privacy and scope
 
-Pattern Playground is intentionally a client-side MVP. It has no login, backend, analytics, or AI integration. Code entered into the editor remains in the browser, and only completed drill IDs are persisted locally.
+Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser, and only completed drill IDs are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
