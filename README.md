@@ -1,3 +1,5 @@
+![Coding Pattern Playground preview](https://raw.githubusercontent.com/ravindrasinghshah/coding-pattern-playground/refs/heads/main/public/social-preview.jpg)
+
 # Introduction
 
 Coding Pattern Playground is a local, browser-based interview-prep app with two complementary ways to practice: rebuild common coding templates from memory and review algorithms, data structures, and complexity concepts with multiple-choice quizzes.
