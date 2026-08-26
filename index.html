@@ -1,13 +1,108 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-US">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Practice common coding interview patterns from memory." />
-    <title>Pattern Playground</title>
+    <title>Coding Pattern Playground | Free Interview Practice</title>
+    <meta name="description" content="Practice coding interview patterns from memory with instant, private TypeScript feedback. Free drills and quizzes for algorithms and data structures." />
+    <meta name="keywords" content="coding interview practice, algorithm patterns, data structures, TypeScript practice, LeetCode patterns, coding quiz, software engineering interview, two pointers, sliding window, dynamic programming" />
+    <meta name="author" content="Ravindra Singh Shah" />
+    <meta name="creator" content="Ravindra Singh Shah" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="theme-color" content="#f4f2ea" />
+    <meta name="color-scheme" content="light" />
+
+    <link rel="canonical" href="https://interviewprep.ravindrasinghshah.com/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="author" href="https://github.com/ravindrasinghshah" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Coding Pattern Playground" />
+    <meta property="og:title" content="Coding Pattern Playground | Free Interview Practice" />
+    <meta property="og:description" content="Build coding interview patterns from memory and get instant, private TypeScript feedback—all free in your browser." />
+    <meta property="og:url" content="https://interviewprep.ravindrasinghshah.com/" />
+    <meta property="og:image" content="https://interviewprep.ravindrasinghshah.com/social-card.svg" />
+    <meta property="og:image:alt" content="Coding Pattern Playground — learn patterns by building them" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Coding Pattern Playground | Free Interview Practice" />
+    <meta name="twitter:description" content="Practice algorithm patterns from memory with instant, private TypeScript feedback." />
+    <meta name="twitter:image" content="https://interviewprep.ravindrasinghshah.com/social-card.svg" />
+    <meta name="twitter:image:alt" content="Coding Pattern Playground — learn patterns by building them" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "https://interviewprep.ravindrasinghshah.com/#app",
+            "name": "Coding Pattern Playground",
+            "url": "https://interviewprep.ravindrasinghshah.com/",
+            "description": "A free, browser-based playground for practicing coding interview patterns from memory with deterministic TypeScript feedback.",
+            "applicationCategory": "EducationalApplication",
+            "applicationSubCategory": "Coding interview practice",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript and a modern web browser",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "author": {
+              "@type": "Person",
+              "name": "Ravindra Singh Shah",
+              "url": "https://github.com/ravindrasinghshah"
+            },
+            "sameAs": "https://github.com/ravindrasinghshah/coding-pattern-playground",
+            "inLanguage": "en-US",
+            "keywords": "coding interview practice, algorithm patterns, data structures, TypeScript, quizzes"
+          },
+          {
+            "@type": "FAQPage",
+            "@id": "https://interviewprep.ravindrasinghshah.com/#faq",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "Who can use Coding Pattern Playground?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Anyone learning or refreshing coding interview patterns can use it, from students and career changers to experienced developers." }
+              },
+              {
+                "@type": "Question",
+                "name": "Why should I use Coding Pattern Playground?",
+                "acceptedAnswer": { "@type": "Answer", "text": "It helps you practice recalling common algorithm templates from memory and gives focused feedback on the structure of your solution." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is Coding Pattern Playground paid or free?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Coding Pattern Playground is completely free. It is a hobby project created by an experienced software engineer to give back to the developer community." }
+              },
+              {
+                "@type": "Question",
+                "name": "Is my code uploaded or stored?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Code is not uploaded or stored. Validation runs in the browser, and practice progress stays in local storage. Google Analytics measures general usage, but entered code is never included in analytics events." }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7D1M4DYKSR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-7D1M4DYKSR', { send_page_view: false });
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>Coding Pattern Playground is a free educational app for practicing algorithms, data structures, and coding interview patterns. JavaScript is required to use the interactive drills and quizzes.</noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
