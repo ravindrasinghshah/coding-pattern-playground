@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Braces, Github, Quote } from "lucide-react";
+import { Github, Quote } from "lucide-react";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
 import { QuizDashboard } from "./components/QuizDashboard";
@@ -112,7 +112,7 @@ export default function App() {
           }}
         >
           <span>
-            <Braces size={19} />
+            <img src="/app-logo.jpg" alt="" />
           </span>
           coding/pattern/playground
         </button>

@@ -8,7 +8,8 @@ button { cursor: pointer; }
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .top-nav { height: 68px; padding: 0 clamp(24px, 5vw, 72px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
 .brand { border: 0; background: none; font-family: "DM Mono", monospace; display: flex; align-items: center; gap: 10px; font-weight: 500; color: var(--ink); }
-.brand > span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 9px; color: #f9f7ef; background: var(--ink); }
+.brand > span { width: 34px; height: 34px; display: grid; place-items: center; overflow: hidden; border-radius: 9px; color: #f9f7ef; background: var(--ink); }
+.brand > span img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .local-badge { font-family: "DM Mono", monospace; font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: .08em; }
 .local-badge i { width: 7px; height: 7px; border-radius: 50%; background: #77a45e; box-shadow: 0 0 0 3px #dce8d4; }
 .page-nav { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 9px; }

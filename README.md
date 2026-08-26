@@ -1,12 +1,12 @@
-# Pattern Playground
+# Introduction
 
-Pattern Playground is a local, browser-based practice app for rebuilding common coding-interview templates from memory. Pick a pattern, write the structure in TypeScript, and get deterministic feedback about the ideas that are present or missing.
+Coding Pattern Playground is a local, browser-based interview-prep app with two complementary ways to practice: rebuild common coding templates from memory and review algorithms, data structures, and complexity concepts with multiple-choice quizzes.
 
-Your submission is parsed in the browser and never executed or uploaded. The goal is to strengthen recall of the reusable shape of an algorithm, not to grade variable names or formatting.
+Coding submissions are parsed in the browser and never executed or uploaded. The goal is to strengthen both your recall of reusable algorithm shapes and your understanding of when and why those techniques work.
 
 ## Live demo
 
-Try Pattern Playground in your browser: [interviewprep.ravindrasinghshah.com](https://interviewprep.ravindrasinghshah.com/)
+Try Coding Pattern Playground in your browser: [interviewprep.ravindrasinghshah.com](https://interviewprep.ravindrasinghshah.com/)
 
 Bookmark the app for quick access: [https://interviewprep.ravindrasinghshah.com/](https://interviewprep.ravindrasinghshah.com/)
 
@@ -18,23 +18,11 @@ The deployed app and the local development version use the same client-side vali
 - Receive feedback on loops, pointers, accumulators, traversal order, and other essential concepts.
 - Use alternate variable names and formatting; validation is based on the syntax tree.
 - Reveal a canonical answer when you are stuck without automatically completing the drill.
-- Track completed drills locally with no account, backend, or AI service.
+- Review 42 quiz topics covering coding patterns, data structures, core concepts, and Big O analysis.
+- Check each quiz answer immediately and read an explanation of the underlying reasoning.
+- Track completed drills and correctly answered quiz questions locally with no account, backend, or AI service.
 
-## Practice library
-
-The current library contains 13 drills across seven patterns:
-
-| Pattern | What you practice |
-| --- | --- |
-| Two Pointers | Opposite ends; traversing and exhausting two inputs |
-| Sliding Window | Expanding a range and shrinking it while an invariant is broken |
-| Prefix Sum | Building a prefix array; counting exact subarrays with a frequency map |
-| String Building | Buffering characters and joining; direct concatenation |
-| Linked List | Fast/slow pointers; in-place reversal |
-| Monotonic Stack | Maintaining an increasing stack |
-| Binary Tree | Recursive DFS; iterative DFS; level-order BFS |
-
-## How to use the app
+## Practice coding templates
 
 1. Start the app and choose a pattern from the practice library.
 2. Open a drill and read its prompt and mental model.
@@ -44,6 +32,16 @@ The current library contains 13 drills across seven patterns:
 6. Use **Show answer** for the canonical implementation when needed. Showing it does not mark the drill complete.
 
 Completed drill IDs are stored in your browser's `localStorage`. Use **Reset progress** on the library screen to clear them.
+
+## Review with quizzes
+
+1. Select **Quiz** in the app navigation.
+2. Choose a topic from the quiz library. Topics are grouped across coding patterns, data structures, core concepts, and Big O analysis.
+3. Select an answer and choose **Check answer**.
+4. Review the correct answer and its explanation, then continue to the next question.
+5. Return to a topic later to resume at its first unanswered question.
+
+Answer choices are shuffled each time a topic is opened. A question counts toward progress only when answered correctly, and quiz progress is stored separately from coding-drill progress in your browser's `localStorage`. You can reset one topic from its card or use **Reset quiz progress** to clear all quiz results. The quiz library also remembers whether you prefer its card or list view.
 
 ## Getting started
 
@@ -94,10 +92,9 @@ Please keep content, validation behavior, and UI behavior separate. Avoid execut
 
 ### Add a drill to an existing pattern
 
-1. Add the canonical template and its heading to [`src/data/code-templates.md`](src/data/code-templates.md).
-2. Add the matching typed entry to [`src/config/practiceCatalog.config.ts`](src/config/practiceCatalog.config.ts), including its stable ID, prompt, explanation, reference link, rules, and versioned validation descriptor.
-3. Add canonical, alternate-format, and adversarial fixtures where the validator has meaningful edge cases.
-4. Run the test suite. Tests verify that source templates and catalog requirements stay in sync.
+1. Add the matching typed entry to [`src/config/practiceCatalog.config.ts`](src/config/practiceCatalog.config.ts), including its stable ID, prompt, explanation, reference link, rules, and versioned validation descriptor.
+2. Add canonical, alternate-format, and adversarial fixtures where the validator has meaningful edge cases.
+3. Run the test suite. Tests verify that source templates and catalog requirements stay in sync.
 
 ### Add a new pattern
 
@@ -134,14 +131,15 @@ This keeps content data separate from executable validation logic and leaves roo
 
 ```text
 src/
-  components/            Dashboard and drill editor views
-  config/                Typed pattern and drill catalog
+  components/            Practice and quiz dashboards and workspaces
+  config/                Typed drill and quiz catalogs
+    quiz/                 Quiz topics and question banks
   data/                  Human-maintained template source
-  lib/                   Public validation and progress APIs
+  lib/                   Validation, quiz evaluation, and progress APIs
   validation/            AST engine and pattern validators
   test/                  Validation fixtures and test utilities
 ```
 
 ## Privacy and scope
 
-Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser, and only completed drill IDs are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
+Coding Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser; completed drill IDs, correctly answered quiz question IDs, and the quiz view preference are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
