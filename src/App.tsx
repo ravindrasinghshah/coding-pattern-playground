@@ -112,7 +112,7 @@ export default function App() {
           }}
         >
           <span>
-            <img src="/app-logo.png" alt="" />
+            <img src="/app-logo.jpg" alt="" />
           </span>
           coding/pattern/playground
         </button>
