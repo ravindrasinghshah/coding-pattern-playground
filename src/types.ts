@@ -10,7 +10,9 @@ export type PatternId =
   | "binary-search"
   | "backtracking"
   | "dynamic-programming"
-  | "trie";
+  | "trie"
+  | "heap"
+  | "shortest-path";
 
 export type ValidationRuleId =
   | "two-index-initializers"

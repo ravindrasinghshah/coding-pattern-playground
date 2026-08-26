@@ -19,6 +19,7 @@ export interface PatternInfo {
   title: string;
   description: string;
   accent: string;
+  comingSoon?: boolean;
 }
 
 export const patternInfo: Record<PatternId, PatternInfo> = {
@@ -59,9 +60,21 @@ export const patternInfo: Record<PatternId, PatternInfo> = {
     accent: "plum",
   },
   graph: { title: "Graph", description: "Traverse connected nodes while preventing repeated visits.", accent: "green" },
+  heap: {
+    title: "Find top K elements with heap",
+    description: "Maintain the strongest K candidates efficiently with a bounded priority queue.",
+    accent: "rose",
+    comingSoon: true,
+  },
   backtracking: { title: "Backtracking", description: "Explore choices recursively and restore state between branches.", accent: "coral" },
   "dynamic-programming": { title: "Dynamic Programming", description: "Cache overlapping recursive states to avoid repeated work.", accent: "violet" },
   trie: { title: "Trie", description: "Represent strings as paths through character-indexed nodes.", accent: "amber" },
+  "shortest-path": {
+    title: "Dijkstra's algorithm",
+    description: "Find shortest paths from a source across a weighted graph with non-negative edges.",
+    accent: "plum",
+    comingSoon: true,
+  },
 };
 
 export const drills: TemplateDrill[] = [

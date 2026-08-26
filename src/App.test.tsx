@@ -41,4 +41,14 @@ describe("App", () => {
     const stackIndex = headings.indexOf("Monotonic Stack");
     expect(headings[stackIndex + 1]).toBe("Binary Search");
   });
+
+  it("shows non-interactive coming-soon cards without changing drill totals", () => {
+    render(<App />);
+    for (const title of ["Find top K elements with heap", "Dijkstra's algorithm"]) {
+      const card = screen.getByRole("article", { name: `${title}, coming soon` });
+      expect(within(card).getByText("Coming soon...")).toBeInTheDocument();
+      expect(within(card).queryByRole("button")).not.toBeInTheDocument();
+    }
+    expect(screen.getByLabelText(`0 of ${drills.length} drills completed`)).toBeInTheDocument();
+  });
 });

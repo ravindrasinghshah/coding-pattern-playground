@@ -32,6 +32,16 @@ export function Dashboard({ completedIds, onOpen, onReset }: Props) {
           const items = drills.filter((drill) => drill.patternId === patternId);
           const completed = items.filter((drill) => completedIds.includes(drill.id)).length;
           const info = patternInfo[patternId];
+          if (info.comingSoon) {
+            return (
+              <article className={`pattern-card placeholder-card ${info.accent}`} key={patternId} aria-label={`${info.title}, coming soon`}>
+                <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
+                <div className="card-top"><span>PLANNED TEMPLATE</span></div>
+                <h3>{info.title}</h3><p>{info.description}</p>
+                <div className="coming-soon" aria-disabled="true">Coming soon...</div>
+              </article>
+            );
+          }
           return (
             <article className={`pattern-card ${info.accent}`} key={patternId}>
               <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
