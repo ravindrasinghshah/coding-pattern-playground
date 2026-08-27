@@ -5,6 +5,7 @@ import { DrillWorkspace } from "./components/DrillWorkspace";
 import { QuizDashboard } from "./components/QuizDashboard";
 import { QuizWorkspace } from "./components/QuizWorkspace";
 import { InfoDialog } from "./components/InfoDialog";
+import { AnnouncementBanner } from "./components/AnnouncementBanner";
 import { drills } from "./config/practiceCatalog.config";
 import {
   getQuizQuestions,
@@ -103,6 +104,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
+      <AnnouncementBanner />
       <nav className="top-nav">
         <button
           className="brand"
