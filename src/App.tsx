@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Github, Quote } from "lucide-react";
+import { BrowserRouter, Navigate, Route, Routes, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
+import { PatternDetail } from "./components/PatternDetail";
 import { QuizDashboard } from "./components/QuizDashboard";
 import { QuizWorkspace } from "./components/QuizWorkspace";
 import { InfoDialog } from "./components/InfoDialog";
 import { AnnouncementBanner } from "./components/AnnouncementBanner";
-import { drills } from "./config/practiceCatalog.config";
+import { drills, patternInfo } from "./config/practiceCatalog.config";
+import { practiceProblems } from "./config/problemCatalog.config";
 import {
   getQuizQuestions,
   getQuizTopic,
@@ -17,6 +20,7 @@ import {
   completeDrill,
   loadProgress,
   saveProgress,
+  toggleProblem,
 } from "./lib/progress";
 import {
   clearQuizProgress,
@@ -26,36 +30,52 @@ import {
   saveQuizProgress,
 } from "./lib/quiz";
 import { trackPageView } from "./lib/analytics";
-import type { SavedProgressV1, SavedQuizProgressV1 } from "./types";
+import type { PatternId, SavedProgressV2, SavedQuizProgressV1 } from "./types";
 
-export default function App() {
+const drillSlug = (patternId: PatternId, drillId: string) => {
+  const prefix = `${patternId}-`;
+  return drillId.startsWith(prefix) ? drillId.slice(prefix.length) : drillId;
+};
+
+function AppShell() {
   const [openInfo, setOpenInfo] = useState<"disclaimer" | "faq" | null>(null);
-  const [page, setPage] = useState<"practice" | "quiz">("practice");
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [activeTopicId, setActiveTopicId] = useState<string | null>(null);
-  const [progress, setProgress] = useState<SavedProgressV1>(() =>
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [progress, setProgress] = useState<SavedProgressV2>(() =>
     loadProgress(),
   );
   const [quizProgress, setQuizProgress] = useState<SavedQuizProgressV1>(() =>
     loadQuizProgress(),
   );
-  const active = drills.find((drill) => drill.id === activeId);
-  const activeTopic = activeTopicId ? getQuizTopic(activeTopicId) : undefined;
+  const drillMatch = matchPath("/practice/:patternId/templates/:templateId", location.pathname);
+  const patternMatch = matchPath("/practice/:patternId", location.pathname);
+  const quizMatch = matchPath("/quiz/:topicId", location.pathname);
+  const routePatternId = (drillMatch?.params.patternId ?? patternMatch?.params.patternId) as PatternId | undefined;
+  const activePatternId = routePatternId && patternInfo[routePatternId] && !patternInfo[routePatternId].comingSoon ? routePatternId : undefined;
+  const active = activePatternId && drillMatch?.params.templateId
+    ? drills.find((drill) => drill.patternId === activePatternId && drillSlug(activePatternId, drill.id) === drillMatch.params.templateId)
+    : undefined;
+  const activeTopic = quizMatch?.params.topicId ? getQuizTopic(quizMatch.params.topicId) : undefined;
   useEffect(() => {
-    if (page === "practice" && active) {
-      trackPageView(`/practice/${active.id}`, `${active.title} | Coding Pattern Playground`);
-    } else if (page === "quiz" && activeTopic) {
-      trackPageView(`/quiz/${activeTopic.id}`, `${activeTopic.title} Quiz | Coding Pattern Playground`);
+    if (active) {
+      trackPageView(location.pathname, `${active.title} | Coding Pattern Playground`);
+    } else if (activePatternId) {
+      trackPageView(location.pathname, `${patternInfo[activePatternId].title} | Coding Pattern Playground`);
+    } else if (activeTopic) {
+      trackPageView(location.pathname, `${activeTopic.title} Quiz | Coding Pattern Playground`);
     } else {
-      const section = page === "practice" ? "Practice" : "Quiz";
-      trackPageView(`/${page}`, `${section} | Coding Pattern Playground`);
+      const section = location.pathname.startsWith("/quiz") ? "Quiz" : "Practice";
+      trackPageView(location.pathname, `${section} | Coding Pattern Playground`);
     }
-  }, [page, active, activeTopic]);
+  }, [location.pathname, active, activePatternId, activeTopic]);
   const knownQuizIds = quizProgress.completedQuestionIds.filter((id) =>
     quizQuestions.some((question) => question.id === id),
   );
   const knownCompletedIds = progress.completedDrillIds.filter((id) =>
     drills.some((drill) => drill.id === id),
+  );
+  const knownProblemIds = progress.completedProblemIds.filter((id) =>
+    practiceProblems.some((problem) => problem.id === id),
   );
   const markComplete = (id: string) =>
     setProgress((current) => {
@@ -63,9 +83,15 @@ export default function App() {
       saveProgress(next);
       return next;
     });
+  const markProblem = (id: string) =>
+    setProgress((current) => {
+      const next = toggleProblem(current, id);
+      saveProgress(next);
+      return next;
+    });
   const resetProgress = () => {
     if (
-      !window.confirm("Reset all completed templates? This cannot be undone.")
+      !window.confirm("Reset all completed templates and problems? This cannot be undone.")
     )
       return;
     setProgress(clearProgress());
@@ -96,22 +122,13 @@ export default function App() {
       return next;
     });
   };
-  const goToPage = (nextPage: "practice" | "quiz") => {
-    setPage(nextPage);
-    setActiveId(null);
-    setActiveTopicId(null);
-  };
-
   return (
     <div className="app-shell">
       <AnnouncementBanner />
       <nav className="top-nav">
         <button
           className="brand"
-          onClick={() => {
-            setActiveId(null);
-            setActiveTopicId(null);
-          }}
+          onClick={() => navigate("/practice")}
         >
           <span>
             <img src="/app-logo.jpg" alt="" />
@@ -121,52 +138,31 @@ export default function App() {
         <div className="page-nav">
           <button
             className={
-              page === "practice" ? "page-nav-button active" : "page-nav-button"
+              location.pathname.startsWith("/practice") ? "page-nav-button active" : "page-nav-button"
             }
-            onClick={() => goToPage("practice")}
+            onClick={() => navigate("/practice")}
           >
             Practice
           </button>
           <button
             className={
-              page === "quiz" ? "page-nav-button active" : "page-nav-button"
+              location.pathname.startsWith("/quiz") ? "page-nav-button active" : "page-nav-button"
             }
-            onClick={() => goToPage("quiz")}
+            onClick={() => navigate("/quiz")}
           >
             Quiz
           </button>
         </div>
       </nav>
-      {page === "practice" && active ? (
-        <DrillWorkspace
-          key={active.id}
-          drill={active}
-          completed={knownCompletedIds.includes(active.id)}
-          onBack={() => setActiveId(null)}
-          onComplete={markComplete}
-        />
-      ) : page === "practice" ? (
-        <Dashboard
-          completedIds={knownCompletedIds}
-          onOpen={setActiveId}
-          onReset={resetProgress}
-        />
-      ) : activeTopic ? (
-        <QuizWorkspace
-          topicTitle={activeTopic.title}
-          questions={getQuizQuestions(activeTopic.id)}
-          completedIds={knownQuizIds}
-          onBack={() => setActiveTopicId(null)}
-          onComplete={markQuizComplete}
-        />
-      ) : (
-        <QuizDashboard
-          completedIds={knownQuizIds}
-          onOpen={setActiveTopicId}
-          onReset={resetQuizProgress}
-          onResetTopic={resetQuizTopicProgress}
-        />
-      )}
+      <Routes>
+        <Route path="/" element={<Navigate to="/practice" replace />} />
+        <Route path="/practice" element={<Dashboard completedIds={knownCompletedIds} completedProblemIds={knownProblemIds} onOpenPattern={(id) => navigate(`/practice/${id}`)} onOpenDrill={(patternId, id) => navigate(`/practice/${patternId}/templates/${drillSlug(patternId, id)}`)} onReset={resetProgress} />} />
+        <Route path="/practice/:patternId" element={activePatternId ? <PatternDetail patternId={activePatternId} completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} onBack={() => navigate("/practice")} onOpenDrill={(id) => navigate(`/practice/${activePatternId}/templates/${drillSlug(activePatternId, id)}`)} onToggleProblem={markProblem} /> : <Navigate to="/practice" replace />} />
+        <Route path="/practice/:patternId/templates/:templateId" element={active && activePatternId ? <DrillWorkspace key={active.id} drill={active} completed={knownCompletedIds.includes(active.id)} completedProblemIds={knownProblemIds} onBack={() => navigate(`/practice/${activePatternId}`)} onComplete={markComplete} onToggleProblem={markProblem} /> : <Navigate to={activePatternId ? `/practice/${activePatternId}` : "/practice"} replace />} />
+        <Route path="/quiz" element={<QuizDashboard completedIds={knownQuizIds} onOpen={(id) => navigate(`/quiz/${id}`)} onReset={resetQuizProgress} onResetTopic={resetQuizTopicProgress} />} />
+        <Route path="/quiz/:topicId" element={activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => navigate("/quiz")} onComplete={markQuizComplete} /> : <Navigate to="/quiz" replace />} />
+        <Route path="*" element={<Navigate to="/practice" replace />} />
+      </Routes>
       <footer>
         <span>Coding Pattern Playground @ {new Date().getFullYear()}</span>
         <span>
@@ -272,4 +268,8 @@ export default function App() {
       )}
     </div>
   );
+}
+
+export default function App() {
+  return <BrowserRouter><AppShell /></BrowserRouter>;
 }

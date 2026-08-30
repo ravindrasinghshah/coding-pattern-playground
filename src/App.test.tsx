@@ -3,13 +3,26 @@ import "@testing-library/jest-dom/vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { drills } from "./config/practiceCatalog.config";
+import { practiceProblems } from "./config/problemCatalog.config";
+
+const openPattern = (name: string) => {
+  const card = screen.getByRole("heading", { name }).closest("article")!;
+  fireEvent.click(within(card).getByRole("button", { name: /view all templates & problems/i }));
+};
 
 describe("App", () => {
-  beforeEach(() => { localStorage.clear(); vi.spyOn(window, "confirm").mockReturnValue(true); });
+  beforeEach(() => {
+    localStorage.clear();
+    window.history.replaceState({}, "", "/practice");
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+  });
   afterEach(() => cleanup());
   it("navigates to a drill and reveals the answer", () => {
     render(<App />);
+    openPattern("Two Pointers");
+    expect(window.location.pathname).toBe("/practice/two-pointers");
     fireEvent.click(screen.getByRole("button", { name: /opposite ends/i }));
+    expect(window.location.pathname).toBe("/practice/two-pointers/templates/opposite-ends");
     expect(screen.getByRole("heading", { name: "Opposite ends" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /show answer/i }));
     expect(screen.getByText("Canonical template")).toBeInTheDocument();
@@ -17,21 +30,25 @@ describe("App", () => {
   it("shows persisted dashboard progress and resets it", () => {
     localStorage.setItem("pattern-playground:progress", JSON.stringify({ version: 1, completedDrillIds: ["two-pointers-opposite-ends"] }));
     render(<App />);
-    expect(screen.getByLabelText(`1 of ${drills.length} drills completed`)).toBeInTheDocument();
+    expect(screen.getByLabelText(`1 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /reset progress/i }));
-    expect(screen.getByLabelText(`0 of ${drills.length} drills completed`)).toBeInTheDocument();
+    expect(screen.getByLabelText(`0 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
   });
 
-  it("opens a template added from the requirements document", () => {
+  it("opens a template directly from its pattern card and shows mapped problems", () => {
     render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: /reverse a linked list/i }));
+    const card = screen.getByRole("heading", { name: "Linked List" }).closest("article")!;
+    fireEvent.click(within(card).getByRole("button", { name: /reverse a linked list/i }));
+    expect(window.location.pathname).toBe("/practice/linked-list/templates/reverse");
     expect(screen.getByRole("heading", { name: "Reverse a linked list" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /merge two sorted lists/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /linked list cycle/i })).not.toBeInTheDocument();
   });
 
   it("renders and opens a newly added graph template", () => {
     render(<App />);
-    const graphCard = screen.getByRole("heading", { name: "Graph" }).closest("article")!;
-    fireEvent.click(within(graphCard).getByRole("button", { name: /dfs, iterative/i }));
+    openPattern("Graph");
+    fireEvent.click(screen.getByRole("button", { name: /dfs, iterative/i }));
     expect(screen.getByRole("heading", { name: "DFS, iterative" })).toBeInTheDocument();
   });
 
@@ -49,7 +66,33 @@ describe("App", () => {
       expect(within(card).getByText("Coming soon...")).toBeInTheDocument();
       expect(within(card).queryByRole("button")).not.toBeInTheDocument();
     }
-    expect(screen.getByLabelText(`0 of ${drills.length} drills completed`)).toBeInTheDocument();
+    expect(screen.getByLabelText(`0 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
+  });
+
+  it("loads valid deep links and redirects invalid template routes", () => {
+    window.history.replaceState({}, "", "/practice/linked-list/templates/fast-slow");
+    const view = render(<App />);
+    expect(screen.getByRole("heading", { name: "Fast and slow pointers" })).toBeInTheDocument();
+    view.unmount();
+    window.history.replaceState({}, "", "/practice/linked-list/templates/not-a-template");
+    render(<App />);
+    expect(window.location.pathname).toBe("/practice/linked-list");
+    expect(screen.getByRole("heading", { name: "Linked List" })).toBeInTheDocument();
+  });
+
+  it("opens a pattern, links externally, and manually persists problem progress", () => {
+    render(<App />);
+    openPattern("Two Pointers");
+    const link = screen.getByRole("link", { name: /valid palindrome/i });
+    expect(link).toHaveAttribute("href", "https://leetcode.com/problems/valid-palindrome/");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(localStorage.getItem("pattern-playground:progress")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /mark complete: valid palindrome/i }));
+    expect(localStorage.getItem("pattern-playground:progress")).toContain("tp-valid-palindrome");
+    fireEvent.click(screen.getByRole("button", { name: "Library" }));
+    const card = screen.getByRole("heading", { name: "Two Pointers" }).closest("article")!;
+    expect(within(card).getByText("1/6 problems")).toBeInTheDocument();
   });
 
   it("opens and closes the disclaimer", () => {
