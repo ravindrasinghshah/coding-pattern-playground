@@ -69,6 +69,51 @@ describe("App", () => {
     expect(screen.getByLabelText(`0 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
   });
 
+  it("searches patterns, descriptions, and template titles", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: /search patterns and templates/i });
+    fireEvent.change(search, { target: { value: "reverse a linked" } });
+    expect(screen.getByRole("heading", { name: "Linked List" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /reverse a linked list/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /fast and slow pointers/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Two Pointers" })).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "ordered search space" } });
+    expect(screen.getByRole("heading", { name: "Binary Search" })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "not a real pattern" } });
+    expect(screen.getByRole("status")).toHaveTextContent("No patterns found");
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByRole("heading", { name: "Two Pointers" })).toBeInTheDocument();
+  });
+
+  it("shows all problems grouped by pattern and filters them", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Problems" }));
+    expect(window.location.pathname).toBe("/problems");
+    expect(screen.getByRole("button", { name: "Problems" })).toHaveClass("active");
+    expect(screen.getByRole("heading", { name: "Two Pointers" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Trie" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Find top K elements with heap" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(practiceProblems.length + 2);
+
+    fireEvent.change(screen.getByRole("searchbox", { name: /search problems/i }), { target: { value: "palindrome" } });
+    expect(screen.getByRole("link", { name: /valid palindrome/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /container with most water/i })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Difficulty"), { target: { value: "Medium" } });
+    expect(screen.getByRole("status")).toHaveTextContent("No problems found");
+  });
+
+  it("shares problem completion between the catalog and pattern pages", () => {
+    window.history.replaceState({}, "", "/problems");
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: /mark complete: valid palindrome/i }));
+    expect(screen.getByLabelText(`1 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
+    expect(localStorage.getItem("pattern-playground:progress")).toContain("tp-valid-palindrome");
+    fireEvent.click(screen.getByRole("button", { name: "Practice" }));
+    const card = screen.getByRole("heading", { name: "Two Pointers" }).closest("article")!;
+    expect(within(card).getByText("1/6 problems")).toBeInTheDocument();
+  });
+
   it("loads valid deep links and redirects invalid template routes", () => {
     window.history.replaceState({}, "", "/practice/linked-list/templates/fast-slow");
     const view = render(<App />);

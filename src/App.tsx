@@ -6,6 +6,7 @@ import { DrillWorkspace } from "./components/DrillWorkspace";
 import { PatternDetail } from "./components/PatternDetail";
 import { QuizDashboard } from "./components/QuizDashboard";
 import { QuizWorkspace } from "./components/QuizWorkspace";
+import { ProblemsDashboard } from "./components/ProblemsDashboard";
 import { InfoDialog } from "./components/InfoDialog";
 import { AnnouncementBanner } from "./components/AnnouncementBanner";
 import { drills, patternInfo } from "./config/practiceCatalog.config";
@@ -64,7 +65,7 @@ function AppShell() {
     } else if (activeTopic) {
       trackPageView(location.pathname, `${activeTopic.title} Quiz | Coding Pattern Playground`);
     } else {
-      const section = location.pathname.startsWith("/quiz") ? "Quiz" : "Practice";
+      const section = location.pathname.startsWith("/quiz") ? "Quiz" : location.pathname.startsWith("/problems") ? "Problems" : "Practice";
       trackPageView(location.pathname, `${section} | Coding Pattern Playground`);
     }
   }, [location.pathname, active, activePatternId, activeTopic]);
@@ -145,6 +146,12 @@ function AppShell() {
             Practice
           </button>
           <button
+            className={location.pathname.startsWith("/problems") ? "page-nav-button active" : "page-nav-button"}
+            onClick={() => navigate("/problems")}
+          >
+            Problems
+          </button>
+          <button
             className={
               location.pathname.startsWith("/quiz") ? "page-nav-button active" : "page-nav-button"
             }
@@ -159,6 +166,7 @@ function AppShell() {
         <Route path="/practice" element={<Dashboard completedIds={knownCompletedIds} completedProblemIds={knownProblemIds} onOpenPattern={(id) => navigate(`/practice/${id}`)} onOpenDrill={(patternId, id) => navigate(`/practice/${patternId}/templates/${drillSlug(patternId, id)}`)} onReset={resetProgress} />} />
         <Route path="/practice/:patternId" element={activePatternId ? <PatternDetail patternId={activePatternId} completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} onBack={() => navigate("/practice")} onOpenDrill={(id) => navigate(`/practice/${activePatternId}/templates/${drillSlug(activePatternId, id)}`)} onToggleProblem={markProblem} /> : <Navigate to="/practice" replace />} />
         <Route path="/practice/:patternId/templates/:templateId" element={active && activePatternId ? <DrillWorkspace key={active.id} drill={active} completed={knownCompletedIds.includes(active.id)} completedProblemIds={knownProblemIds} onBack={() => navigate(`/practice/${activePatternId}`)} onComplete={markComplete} onToggleProblem={markProblem} /> : <Navigate to={activePatternId ? `/practice/${activePatternId}` : "/practice"} replace />} />
+        <Route path="/problems" element={<ProblemsDashboard completedProblemIds={knownProblemIds} onToggleProblem={markProblem} />} />
         <Route path="/quiz" element={<QuizDashboard completedIds={knownQuizIds} onOpen={(id) => navigate(`/quiz/${id}`)} onReset={resetQuizProgress} onResetTopic={resetQuizTopicProgress} />} />
         <Route path="/quiz/:topicId" element={activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => navigate("/quiz")} onComplete={markQuizComplete} /> : <Navigate to="/quiz" replace />} />
         <Route path="*" element={<Navigate to="/practice" replace />} />
