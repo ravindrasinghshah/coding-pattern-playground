@@ -27,7 +27,7 @@ export function DrillWorkspace({ drill, completed, onBack, onComplete }: Props) 
   return (
     <main className="workspace">
       <header className="workspace-header">
-        <button className="back-button" onClick={onBack}><ArrowLeft size={18} /> Library</button>
+        <button className="back-button" onClick={onBack}><ArrowLeft size={18} /> Pattern</button>
         <div className="crumb"><span>{drill.patternId.replaceAll("-", " ")}</span><ChevronRight size={14} /><strong>{drill.title}</strong></div>
         <span className={completed ? "completed-pill" : "practice-pill"}>{completed ? <><Check size={14} /> Completed</> : "In practice"}</span>
       </header>

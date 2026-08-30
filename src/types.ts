@@ -143,6 +143,22 @@ export interface SavedProgressV1 {
   completedDrillIds: string[];
 }
 
+export interface SavedProgressV2 {
+  version: 2;
+  completedDrillIds: string[];
+  completedProblemIds: string[];
+}
+
+export type ProblemDifficulty = "Easy" | "Medium" | "Hard";
+
+export interface PracticeProblem {
+  id: string;
+  patternId: PatternId;
+  title: string;
+  difficulty: ProblemDifficulty;
+  url: string;
+}
+
 export type QuizCategory = "patterns" | "data-structures" | "concepts" | "big-o";
 
 export interface QuizTopic {
