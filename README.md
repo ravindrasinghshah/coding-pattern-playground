@@ -2,7 +2,7 @@
 
 # Introduction
 
-Coding Pattern Playground is a local, browser-based interview-prep app with two complementary ways to practice: rebuild common coding templates from memory and review algorithms, data structures, and complexity concepts with multiple-choice quizzes.
+Coding Pattern Playground is a local, browser-based interview-prep app for rebuilding common coding templates from memory, solving curated pattern-based problems, and reviewing algorithms, data structures, and complexity concepts with multiple-choice quizzes.
 
 Coding submissions are parsed in the browser and never executed or uploaded. The goal is to strengthen both your recall of reusable algorithm shapes and your understanding of when and why those techniques work.
 
@@ -20,9 +20,12 @@ The deployed app and the local development version use the same client-side vali
 - Receive feedback on loops, pointers, accumulators, traversal order, and other essential concepts.
 - Use alternate variable names and formatting; validation is based on the syntax tree.
 - Reveal a canonical answer when you are stuck without automatically completing the drill.
+- Search the practice library by pattern, description, or template name.
+- Browse and filter a problem catalog by pattern, title, difficulty, and completion status.
 - Review 42 quiz topics covering coding patterns, data structures, core concepts, and Big O analysis.
 - Check each quiz answer immediately and read an explanation of the underlying reasoning.
-- Track completed drills and correctly answered quiz questions locally with no account, backend, or AI service.
+- Open a Progress snapshot to see overall completion and plan unfinished patterns and quiz topics.
+- Track completed templates, solved problems, and correctly answered quiz questions locally with no account, backend, or AI service.
 
 ## Practice coding templates
 
@@ -35,6 +38,15 @@ The deployed app and the local development version use the same client-side vali
 
 Completed drill IDs are stored in your browser's `localStorage`. Use **Reset progress** on the library screen to clear them.
 
+## Solve practice problems
+
+1. Select **Problems** in the app navigation.
+2. Search by problem title or narrow the catalog by difficulty and completion status.
+3. Browse problems grouped by coding pattern and open a problem in LeetCode when ready.
+4. Mark a problem complete from the catalog, pattern page, or related drill workspace.
+
+Problem completion is shared across those views and stored alongside template progress in your browser's `localStorage`.
+
 ## Review with quizzes
 
 1. Select **Quiz** in the app navigation.
@@ -44,6 +56,10 @@ Completed drill IDs are stored in your browser's `localStorage`. Use **Reset pro
 5. Return to a topic later to resume at its first unanswered question.
 
 Answer choices are shuffled each time a topic is opened. A question counts toward progress only when answered correctly, and quiz progress is stored separately from coding-drill progress in your browser's `localStorage`. You can reset one topic from its card or use **Reset quiz progress** to clear all quiz results. The quiz library also remembers whether you prefer its card or list view.
+
+## Review progress
+
+Select **Progress** in the navigation to open a responsive snapshot of templates completed, problems solved, and quiz questions completed. The drawer groups unfinished work into collapsible **Patterns** and **Quiz topics** sections, ordered from least to most complete within each group. Select an item to continue directly where you left off.
 
 ## Getting started
 
@@ -144,4 +160,4 @@ src/
 
 ## Privacy and scope
 
-Coding Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser; completed drill IDs, correctly answered quiz question IDs, and the quiz view preference are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.
+Coding Pattern Playground is intentionally a client-side app. It has no login, backend, or AI integration. Code entered into the editor remains in the browser; completed drill and problem IDs, correctly answered quiz question IDs, and the quiz view preference are persisted locally. The hosted site uses Google Analytics to measure general page usage and navigation; submitted code is never sent as analytics data.

@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { Github, Quote } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { BarChart3, Github, Quote } from "lucide-react";
 import { BrowserRouter, Navigate, Route, Routes, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
 import { PatternDetail } from "./components/PatternDetail";
 import { QuizDashboard } from "./components/QuizDashboard";
 import { QuizWorkspace } from "./components/QuizWorkspace";
+import { ProblemsDashboard } from "./components/ProblemsDashboard";
+import { ProgressSnapshot } from "./components/ProgressSnapshot";
 import { InfoDialog } from "./components/InfoDialog";
 import { AnnouncementBanner } from "./components/AnnouncementBanner";
 import { drills, patternInfo } from "./config/practiceCatalog.config";
@@ -39,6 +41,8 @@ const drillSlug = (patternId: PatternId, drillId: string) => {
 
 function AppShell() {
   const [openInfo, setOpenInfo] = useState<"disclaimer" | "faq" | null>(null);
+  const [isProgressSnapshotOpen, setIsProgressSnapshotOpen] = useState(false);
+  const progressButtonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const [progress, setProgress] = useState<SavedProgressV2>(() =>
@@ -64,7 +68,7 @@ function AppShell() {
     } else if (activeTopic) {
       trackPageView(location.pathname, `${activeTopic.title} Quiz | Coding Pattern Playground`);
     } else {
-      const section = location.pathname.startsWith("/quiz") ? "Quiz" : "Practice";
+      const section = location.pathname.startsWith("/quiz") ? "Quiz" : location.pathname.startsWith("/problems") ? "Problems" : "Practice";
       trackPageView(location.pathname, `${section} | Coding Pattern Playground`);
     }
   }, [location.pathname, active, activePatternId, activeTopic]);
@@ -122,6 +126,14 @@ function AppShell() {
       return next;
     });
   };
+  const closeProgressSnapshot = () => {
+    setIsProgressSnapshotOpen(false);
+    window.requestAnimationFrame(() => progressButtonRef.current?.focus());
+  };
+  const navigateFromProgressSnapshot = (path: string) => {
+    setIsProgressSnapshotOpen(false);
+    navigate(path);
+  };
   return (
     <div className="app-shell">
       <AnnouncementBanner />
@@ -135,22 +147,33 @@ function AppShell() {
           </span>
           coding/pattern/playground
         </button>
-        <div className="page-nav">
-          <button
-            className={
-              location.pathname.startsWith("/practice") ? "page-nav-button active" : "page-nav-button"
-            }
-            onClick={() => navigate("/practice")}
-          >
-            Practice
-          </button>
-          <button
-            className={
-              location.pathname.startsWith("/quiz") ? "page-nav-button active" : "page-nav-button"
-            }
-            onClick={() => navigate("/quiz")}
-          >
-            Quiz
+        <div className="nav-actions">
+          <div className="page-nav">
+            <button
+              className={
+                location.pathname.startsWith("/practice") ? "page-nav-button active" : "page-nav-button"
+              }
+              onClick={() => navigate("/practice")}
+            >
+              Practice
+            </button>
+            <button
+              className={location.pathname.startsWith("/problems") ? "page-nav-button active" : "page-nav-button"}
+              onClick={() => navigate("/problems")}
+            >
+              Problems
+            </button>
+            <button
+              className={
+                location.pathname.startsWith("/quiz") ? "page-nav-button active" : "page-nav-button"
+              }
+              onClick={() => navigate("/quiz")}
+            >
+              Quiz
+            </button>
+          </div>
+          <button ref={progressButtonRef} className="progress-button" type="button" onClick={() => setIsProgressSnapshotOpen(true)} aria-label="Open progress snapshot">
+            <BarChart3 size={16} aria-hidden="true" /><span>Progress</span>
           </button>
         </div>
       </nav>
@@ -159,10 +182,12 @@ function AppShell() {
         <Route path="/practice" element={<Dashboard completedIds={knownCompletedIds} completedProblemIds={knownProblemIds} onOpenPattern={(id) => navigate(`/practice/${id}`)} onOpenDrill={(patternId, id) => navigate(`/practice/${patternId}/templates/${drillSlug(patternId, id)}`)} onReset={resetProgress} />} />
         <Route path="/practice/:patternId" element={activePatternId ? <PatternDetail patternId={activePatternId} completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} onBack={() => navigate("/practice")} onOpenDrill={(id) => navigate(`/practice/${activePatternId}/templates/${drillSlug(activePatternId, id)}`)} onToggleProblem={markProblem} /> : <Navigate to="/practice" replace />} />
         <Route path="/practice/:patternId/templates/:templateId" element={active && activePatternId ? <DrillWorkspace key={active.id} drill={active} completed={knownCompletedIds.includes(active.id)} completedProblemIds={knownProblemIds} onBack={() => navigate(`/practice/${activePatternId}`)} onComplete={markComplete} onToggleProblem={markProblem} /> : <Navigate to={activePatternId ? `/practice/${activePatternId}` : "/practice"} replace />} />
+        <Route path="/problems" element={<ProblemsDashboard completedProblemIds={knownProblemIds} onToggleProblem={markProblem} />} />
         <Route path="/quiz" element={<QuizDashboard completedIds={knownQuizIds} onOpen={(id) => navigate(`/quiz/${id}`)} onReset={resetQuizProgress} onResetTopic={resetQuizTopicProgress} />} />
         <Route path="/quiz/:topicId" element={activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => navigate("/quiz")} onComplete={markQuizComplete} /> : <Navigate to="/quiz" replace />} />
         <Route path="*" element={<Navigate to="/practice" replace />} />
       </Routes>
+      {isProgressSnapshotOpen && <ProgressSnapshot completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} completedQuizIds={knownQuizIds} onClose={closeProgressSnapshot} onNavigate={navigateFromProgressSnapshot} />}
       <footer>
         <span>Coding Pattern Playground @ {new Date().getFullYear()}</span>
         <span>

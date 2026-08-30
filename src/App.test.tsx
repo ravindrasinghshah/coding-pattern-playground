@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import App from "./App";
 import { drills } from "./config/practiceCatalog.config";
 import { practiceProblems } from "./config/problemCatalog.config";
+import { quizQuestions, quizTopics } from "./config/quizCatalog.config";
 
 const openPattern = (name: string) => {
   const card = screen.getByRole("heading", { name }).closest("article")!;
@@ -67,6 +68,113 @@ describe("App", () => {
       expect(within(card).queryByRole("button")).not.toBeInTheDocument();
     }
     expect(screen.getByLabelText(`0 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
+  });
+
+  it("searches patterns, descriptions, and template titles", () => {
+    render(<App />);
+    const search = screen.getByRole("searchbox", { name: /search patterns and templates/i });
+    fireEvent.change(search, { target: { value: "reverse a linked" } });
+    expect(screen.getByRole("heading", { name: "Linked List" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /reverse a linked list/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /fast and slow pointers/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Two Pointers" })).not.toBeInTheDocument();
+
+    fireEvent.change(search, { target: { value: "ordered search space" } });
+    expect(screen.getByRole("heading", { name: "Binary Search" })).toBeInTheDocument();
+    fireEvent.change(search, { target: { value: "not a real pattern" } });
+    expect(screen.getByRole("status")).toHaveTextContent("No patterns found");
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByRole("heading", { name: "Two Pointers" })).toBeInTheDocument();
+  });
+
+  it("shows all problems grouped by pattern and filters them", () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: "Problems" }));
+    expect(window.location.pathname).toBe("/problems");
+    expect(screen.getByRole("button", { name: "Problems" })).toHaveClass("active");
+    expect(screen.getByRole("heading", { name: "Two Pointers" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Trie" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "Find top K elements with heap" })).not.toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(practiceProblems.length + 2);
+
+    fireEvent.change(screen.getByRole("searchbox", { name: /search problems/i }), { target: { value: "palindrome" } });
+    expect(screen.getByRole("link", { name: /valid palindrome/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /container with most water/i })).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Difficulty"), { target: { value: "Medium" } });
+    expect(screen.getByRole("status")).toHaveTextContent("No problems found");
+  });
+
+  it("shares problem completion between the catalog and pattern pages", () => {
+    window.history.replaceState({}, "", "/problems");
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: /mark complete: valid palindrome/i }));
+    expect(screen.getByLabelText(`1 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
+    expect(localStorage.getItem("pattern-playground:progress")).toContain("tp-valid-palindrome");
+    fireEvent.click(screen.getByRole("button", { name: "Practice" }));
+    const card = screen.getByRole("heading", { name: "Two Pointers" }).closest("article")!;
+    expect(within(card).getByText("1/6 problems")).toBeInTheDocument();
+  });
+
+  it("summarizes valid progress, prioritizes the least-complete work, and navigates from the snapshot", () => {
+    const incompleteTopic = quizTopics[0];
+    const incompleteQuestionIds = new Set(incompleteTopic.questionIds);
+    const completedPatternIds = drills.filter((drill) => drill.patternId !== "two-pointers").map((drill) => drill.id);
+    completedPatternIds.push(drills.find((drill) => drill.patternId === "two-pointers")!.id);
+    const completedProblemIds = practiceProblems.filter((problem) => problem.patternId !== "two-pointers").map((problem) => problem.id);
+    localStorage.setItem("pattern-playground:progress", JSON.stringify({
+      version: 2,
+      completedDrillIds: [...completedPatternIds, "stale-drill"],
+      completedProblemIds: [...completedProblemIds, "stale-problem"],
+    }));
+    localStorage.setItem("pattern-playground:quiz-progress", JSON.stringify({
+      version: 1,
+      completedQuestionIds: quizQuestions.filter((question) => !incompleteQuestionIds.has(question.id)).map((question) => question.id).concat("stale-question"),
+    }));
+    render(<App />);
+    fireEvent.click(screen.getByRole("button", { name: /open progress snapshot/i }));
+    const dialog = screen.getByRole("dialog", { name: "Your progress" });
+    const total = drills.length + practiceProblems.length + quizQuestions.length;
+    const completed = completedPatternIds.length + completedProblemIds.length + quizQuestions.length - incompleteTopic.questionIds.length;
+    expect(within(dialog).getByLabelText(`${completed} of ${total} learning items complete`)).toBeInTheDocument();
+    expect(within(dialog).queryByText("Find top K elements with heap")).not.toBeInTheDocument();
+    expect(within(dialog).getByText("Patterns")).toBeInTheDocument();
+    expect(within(dialog).getByText("Quiz topics")).toBeInTheDocument();
+    expect(within(dialog).queryByRole("button", { name: /continue two pointers/i })).toBeInTheDocument();
+    expect(within(dialog).getAllByRole("button", { name: /continue /i })[0]).toHaveAccessibleName(/Continue Two Pointers/);
+    expect(within(dialog).getByRole("button", { name: new RegExp(`Continue ${incompleteTopic.title}`) })).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole("button", { name: /continue two pointers/i }));
+    expect(window.location.pathname).toBe("/practice/two-pointers");
+    expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /open progress snapshot/i }));
+    fireEvent.click(screen.getByRole("button", { name: /solved/i }));
+    expect(window.location.pathname).toBe("/problems");
+    expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /mark complete: valid palindrome/i }));
+    fireEvent.click(screen.getByRole("button", { name: /open progress snapshot/i }));
+    expect(screen.getByLabelText(`${completed + 1} of ${total} learning items complete`)).toBeInTheDocument();
+  });
+
+  it("shows the all-complete snapshot state and restores focus after closing", async () => {
+    localStorage.setItem("pattern-playground:progress", JSON.stringify({ version: 2, completedDrillIds: drills.map((drill) => drill.id), completedProblemIds: practiceProblems.map((problem) => problem.id) }));
+    localStorage.setItem("pattern-playground:quiz-progress", JSON.stringify({ version: 1, completedQuestionIds: quizQuestions.map((question) => question.id) }));
+    render(<App />);
+    const opener = screen.getByRole("button", { name: /open progress snapshot/i });
+    opener.focus();
+    fireEvent.click(opener);
+    expect(screen.getByRole("status")).toHaveTextContent("Everything is complete.");
+    fireEvent.click(screen.getByRole("button", { name: /close progress snapshot/i }));
+    await new Promise((resolve) => window.requestAnimationFrame(resolve));
+    expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
+    expect(opener).toHaveFocus();
+
+    fireEvent.click(opener);
+    fireEvent(screen.getByRole("dialog", { name: "Your progress" }), new Event("cancel", { cancelable: true }));
+    expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
+    fireEvent.click(opener);
+    fireEvent.click(screen.getByRole("dialog", { name: "Your progress" }));
+    expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
   });
 
   it("loads valid deep links and redirects invalid template routes", () => {
