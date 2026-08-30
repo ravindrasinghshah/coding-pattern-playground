@@ -33,7 +33,7 @@ export function Dashboard({ completedIds, completedProblemIds, onOpenPattern, on
           <p className="hero-copy">Choose a template and write it from memory.</p>
         </div>
         <div className="progress-orbit" aria-label={`${completedIds.length} of ${drills.length} drills completed; ${completedProblemIds.length} of ${practiceProblems.length} problems completed`}>
-          <strong>{completedIds.length}</strong><span>/ {drills.length}</span><small>templates recalled</small>
+          <strong>{completedIds.length}</strong><span>/ {drills.length}</span><small>completed</small>
         </div>
       </section>
 

@@ -137,15 +137,18 @@ describe("App", () => {
     const completed = completedPatternIds.length + completedProblemIds.length + quizQuestions.length - incompleteTopic.questionIds.length;
     expect(within(dialog).getByLabelText(`${completed} of ${total} learning items complete`)).toBeInTheDocument();
     expect(within(dialog).queryByText("Find top K elements with heap")).not.toBeInTheDocument();
+    expect(within(dialog).getByText("Patterns")).toBeInTheDocument();
+    expect(within(dialog).getByText("Quiz topics")).toBeInTheDocument();
     expect(within(dialog).queryByRole("button", { name: /continue two pointers/i })).toBeInTheDocument();
-    expect(within(dialog).getAllByRole("button", { name: /continue /i })[0]).toHaveAccessibleName(new RegExp(`Continue ${incompleteTopic.title}`));
+    expect(within(dialog).getAllByRole("button", { name: /continue /i })[0]).toHaveAccessibleName(/Continue Two Pointers/);
+    expect(within(dialog).getByRole("button", { name: new RegExp(`Continue ${incompleteTopic.title}`) })).toBeInTheDocument();
 
     fireEvent.click(within(dialog).getByRole("button", { name: /continue two pointers/i }));
     expect(window.location.pathname).toBe("/practice/two-pointers");
     expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: /open progress snapshot/i }));
-    fireEvent.click(screen.getByRole("button", { name: /problems solved/i }));
+    fireEvent.click(screen.getByRole("button", { name: /solved/i }));
     expect(window.location.pathname).toBe("/problems");
     expect(screen.queryByRole("dialog", { name: "Your progress" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /mark complete: valid palindrome/i }));

@@ -35,7 +35,7 @@ export function ProblemsDashboard({ completedProblemIds, onToggleProblem }: Prop
     <main className="dashboard problems-dashboard">
       <section className="hero">
         <div><p className="kicker">PROBLEM CATALOG</p><h1>Put patterns into practice.</h1><p className="hero-copy">Browse curated problems by pattern and track the ones you complete.</p></div>
-        <div className="progress-orbit" aria-label={`${completedProblemIds.length} of ${practiceProblems.length} problems completed`}><strong>{completedProblemIds.length}</strong><span>/ {practiceProblems.length}</span><small>problems solved</small></div>
+        <div className="progress-orbit" aria-label={`${completedProblemIds.length} of ${practiceProblems.length} problems completed`}><strong>{completedProblemIds.length}</strong><span>/ {practiceProblems.length}</span><small>solved</small></div>
       </section>
 
       <section className="section-heading">

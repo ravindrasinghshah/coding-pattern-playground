@@ -21,7 +21,7 @@ export function QuizDashboard({ completedIds, onOpen, onReset, onResetTopic }: P
     <main className="dashboard quiz-dashboard">
       <section className="hero">
         <div><p className="kicker">CONCEPT REVIEW</p><h1>Build sharper instincts.</h1><p className="hero-copy">Answer a question, then inspect the reasoning behind it.</p></div>
-        <div className="progress-orbit" aria-label={`${completedIds.length} of ${total} quiz questions completed`}><strong>{completedIds.length}</strong><span>/ {total}</span><small>answers recalled</small></div>
+        <div className="progress-orbit" aria-label={`${completedIds.length} of ${total} quiz questions completed`}><strong>{completedIds.length}</strong><span>/ {total}</span><small>completed</small></div>
       </section>
       <section className="section-heading">
         <div><p className="overline">QUIZ LIBRARY</p><h2>Choose a topic</h2></div>

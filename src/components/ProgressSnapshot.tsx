@@ -15,7 +15,6 @@ interface Props {
 
 type RemainingItem = {
   id: string;
-  kind: "Pattern" | "Quiz";
   title: string;
   completed: number;
   total: number;
@@ -65,7 +64,6 @@ export function ProgressSnapshot({ completedDrillIds, completedProblemIds, compl
     const problemsRemaining = patternProblems.length - patternProblems.filter((problem) => completedProblems.has(problem.id)).length;
     return [{
       id: patternId,
-      kind: "Pattern",
       title: patternInfo[patternId].title,
       completed: patternComplete,
       total: patternTotal,
@@ -80,19 +78,30 @@ export function ProgressSnapshot({ completedDrillIds, completedProblemIds, compl
     if (topicComplete === questions.length) return [];
     return [{
       id: topic.id,
-      kind: "Quiz",
       title: topic.title,
       completed: topicComplete,
       total: questions.length,
       detail: `${questions.length - topicComplete} question${questions.length - topicComplete === 1 ? "" : "s"} remaining`,
       path: `/quiz/${topic.id}`,
-      order: activePatternIds.length + index,
+      order: index,
     }];
   });
-  const remaining = [...remainingPatterns, ...remainingTopics].sort((left, right) => {
+  const sortRemaining = (left: RemainingItem, right: RemainingItem) => {
     const percentDifference = percentage(left.completed, left.total) - percentage(right.completed, right.total);
     return percentDifference || left.order - right.order;
-  });
+  };
+  const sortedPatterns = [...remainingPatterns].sort(sortRemaining);
+  const sortedTopics = [...remainingTopics].sort(sortRemaining);
+  const remainingCount = sortedPatterns.length + sortedTopics.length;
+  const renderRemainingItems = (items: RemainingItem[]) => <ol className="remaining-list">
+    {items.map((item) => <li key={item.id}>
+      <button type="button" onClick={() => onNavigate(item.path)} aria-label={`Continue ${item.title}: ${item.completed} of ${item.total} complete`}>
+        <span className="remaining-item-copy"><strong>{item.title}</strong><em>{item.detail}</em></span>
+        <span className="remaining-item-progress"><b>{percentage(item.completed, item.total)}%</b><i><span style={{ width: `${percentage(item.completed, item.total)}%` }} /></i></span>
+        <ArrowRight size={16} aria-hidden="true" />
+      </button>
+    </li>)}
+  </ol>;
 
   return (
     <dialog
@@ -120,27 +129,22 @@ export function ProgressSnapshot({ completedDrillIds, completedProblemIds, compl
 
           <section className="progress-metrics" aria-label="Progress by learning area">
             <button type="button" className="progress-metric" onClick={() => onNavigate("/practice")}>
-              <span>Templates recalled</span><strong>{completedTemplateCount}<small> / {templateTotal}</small></strong><i><b style={{ width: `${percentage(completedTemplateCount, templateTotal)}%` }} /></i>
+              <span>Completed</span><strong>{completedTemplateCount}<small> / {templateTotal}</small></strong><i><b style={{ width: `${percentage(completedTemplateCount, templateTotal)}%` }} /></i>
             </button>
             <button type="button" className="progress-metric" onClick={() => onNavigate("/problems")}>
-              <span>Problems solved</span><strong>{completedProblemCount}<small> / {problemTotal}</small></strong><i><b style={{ width: `${percentage(completedProblemCount, problemTotal)}%` }} /></i>
+              <span>Solved</span><strong>{completedProblemCount}<small> / {problemTotal}</small></strong><i><b style={{ width: `${percentage(completedProblemCount, problemTotal)}%` }} /></i>
             </button>
             <button type="button" className="progress-metric" onClick={() => onNavigate("/quiz")}>
-              <span>Quiz recalled</span><strong>{completedQuizCount}<small> / {quizTotal}</small></strong><i><b style={{ width: `${percentage(completedQuizCount, quizTotal)}%` }} /></i>
+              <span>Completed</span><strong>{completedQuizCount}<small> / {quizTotal}</small></strong><i><b style={{ width: `${percentage(completedQuizCount, quizTotal)}%` }} /></i>
             </button>
           </section>
 
           <section className="next-up-section" aria-labelledby="next-up-title">
-            <div className="progress-section-heading"><div><p className="overline">PLAN NEXT</p><h3 id="next-up-title">What is left</h3></div><span>{remaining.length} to continue</span></div>
-            {remaining.length > 0 ? <ol className="remaining-list">
-              {remaining.map((item) => <li key={`${item.kind}-${item.id}`}>
-                <button type="button" onClick={() => onNavigate(item.path)} aria-label={`Continue ${item.title}: ${item.completed} of ${item.total} complete`}>
-                  <span className="remaining-item-copy"><small>{item.kind}</small><strong>{item.title}</strong><em>{item.detail}</em></span>
-                  <span className="remaining-item-progress"><b>{percentage(item.completed, item.total)}%</b><i><span style={{ width: `${percentage(item.completed, item.total)}%` }} /></i></span>
-                  <ArrowRight size={16} aria-hidden="true" />
-                </button>
-              </li>)}
-            </ol> : <div className="all-complete" role="status"><Check size={20} /><div><strong>Everything is complete.</strong><p>You have finished every available template, problem, and quiz question.</p></div></div>}
+            <div className="progress-section-heading"><div><p className="overline">PLAN NEXT</p><h3 id="next-up-title">What is left</h3></div><span>{remainingCount} to continue</span></div>
+            {remainingCount > 0 ? <div className="remaining-groups">
+              {sortedPatterns.length > 0 && <details className="remaining-group" open><summary><span>Patterns</span><b>{sortedPatterns.length} remaining</b></summary>{renderRemainingItems(sortedPatterns)}</details>}
+              {sortedTopics.length > 0 && <details className="remaining-group" open><summary><span>Quiz topics</span><b>{sortedTopics.length} remaining</b></summary>{renderRemainingItems(sortedTopics)}</details>}
+            </div> : <div className="all-complete" role="status"><Check size={20} /><div><strong>Everything is complete.</strong><p>You have finished every available template, problem, and quiz question.</p></div></div>}
           </section>
         </div>
       </aside>
