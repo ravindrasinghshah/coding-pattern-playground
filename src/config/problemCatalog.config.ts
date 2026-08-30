@@ -1,12 +1,52 @@
 import type { PracticeProblem } from "../types";
 
+const defaultTemplate: Record<PracticeProblem["patternId"], string> = {
+  "two-pointers": "two-pointers-opposite-ends",
+  "sliding-window": "sliding-window-variable",
+  "prefix-sum": "prefix-sum-build",
+  "string-building": "string-building-array-join",
+  "linked-list": "linked-list-fast-slow",
+  "monotonic-stack": "monotonic-stack-increasing",
+  "binary-search": "binary-search",
+  "binary-tree": "binary-tree-dfs-recursive",
+  graph: "graph-dfs-recursive",
+  backtracking: "backtracking",
+  "dynamic-programming": "dynamic-programming-top-down",
+  trie: "trie-build",
+  heap: "",
+  "shortest-path": "",
+};
+
+const templateOverrides: Record<string, string> = {
+  "tp-move-zeroes": "two-pointers-two-inputs",
+  "ps-subarray-sum": "prefix-sum-exact-subarrays",
+  "ps-shortest-subarray": "prefix-sum-exact-subarrays",
+  "sb-defang-ip": "string-building-concatenation",
+  "sb-zigzag": "string-building-concatenation",
+  "ll-merge-two": "linked-list-reverse",
+  "ll-copy-random": "linked-list-reverse",
+  "ll-merge-k": "linked-list-reverse",
+  "ms-final-prices": "monotonic-stack-decreasing",
+  "ms-remove-k-digits": "monotonic-stack-decreasing",
+  "bs-search-insert": "binary-search-left",
+  "bs-rotated": "binary-search-right",
+  "bs-min-rotated": "binary-search-minimum",
+  "bs-koko": "binary-search-minimum",
+  "bs-median": "binary-search-maximum",
+  "bt-level-order": "binary-tree-bfs",
+  "bt-kth-smallest": "binary-tree-dfs-iterative",
+  "g-town-judge": "graph-dfs-iterative",
+  "g-clone": "graph-dfs-iterative",
+  "g-word-ladder": "graph-bfs",
+};
+
 const problem = (
   id: string,
   patternId: PracticeProblem["patternId"],
   title: string,
   difficulty: PracticeProblem["difficulty"],
   slug: string,
-): PracticeProblem => ({ id, patternId, title, difficulty, url: `https://leetcode.com/problems/${slug}/` });
+): PracticeProblem => ({ id, patternId, templateId: templateOverrides[id] ?? defaultTemplate[patternId], title, difficulty, url: `https://leetcode.com/problems/${slug}/` });
 
 export const practiceProblems: PracticeProblem[] = [
   problem("tp-valid-palindrome", "two-pointers", "Valid Palindrome", "Easy", "valid-palindrome"),
@@ -96,3 +136,6 @@ export const practiceProblems: PracticeProblem[] = [
 
 export const getProblemsForPattern = (patternId: PracticeProblem["patternId"]) =>
   practiceProblems.filter((item) => item.patternId === patternId);
+
+export const getProblemsForTemplate = (templateId: string) =>
+  practiceProblems.filter((item) => item.templateId === templateId);

@@ -18,6 +18,7 @@ export function PatternDetail({ patternId, completedDrillIds, completedProblemId
   const problems = getProblemsForPattern(patternId);
   const completedDrills = patternDrills.filter((drill) => completedDrillIds.includes(drill.id)).length;
   const completedProblems = problems.filter((problem) => completedProblemIds.includes(problem.id)).length;
+  const templateTitle = (templateId: string) => patternDrills.find((drill) => drill.id === templateId)?.title ?? "Template";
 
   return (
     <main className="pattern-detail">
@@ -63,7 +64,7 @@ export function PatternDetail({ patternId, completedDrillIds, completedProblemId
                   onClick={() => onToggleProblem(problem.id)}
                 >{complete && <Check size={13} />}</button>
                 <a href={problem.url} target="_blank" rel="noopener noreferrer">
-                  <span>{problem.title}</span><ExternalLink size={14} />
+                  <span className="problem-copy"><span>{problem.title}</span><small>Use: {templateTitle(problem.templateId)}</small></span><ExternalLink size={14} />
                 </a>
                 <span className={`difficulty ${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
               </li>;

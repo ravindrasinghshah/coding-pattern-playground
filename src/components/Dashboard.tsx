@@ -1,4 +1,4 @@
-import { ArrowRight, RotateCcw } from "lucide-react";
+import { ArrowRight, Check, RotateCcw } from "lucide-react";
 import { drills, patternInfo } from "../config/practiceCatalog.config";
 import { getProblemsForPattern, practiceProblems } from "../config/problemCatalog.config";
 import type { PatternId } from "../types";
@@ -6,11 +6,12 @@ import type { PatternId } from "../types";
 interface Props {
   completedIds: string[];
   completedProblemIds: string[];
-  onOpen: (id: PatternId) => void;
+  onOpenPattern: (id: PatternId) => void;
+  onOpenDrill: (patternId: PatternId, drillId: string) => void;
   onReset: () => void;
 }
 
-export function Dashboard({ completedIds, completedProblemIds, onOpen, onReset }: Props) {
+export function Dashboard({ completedIds, completedProblemIds, onOpenPattern, onOpenDrill, onReset }: Props) {
   const patternIds = Object.keys(patternInfo) as PatternId[];
   return (
     <main className="dashboard">
@@ -26,7 +27,7 @@ export function Dashboard({ completedIds, completedProblemIds, onOpen, onReset }
 
       <section className="section-heading">
         <div><p className="overline">PRACTICE LIBRARY</p><h2>Choose a pattern</h2></div>
-        {completedIds.length > 0 && <button className="ghost-button" onClick={onReset}><RotateCcw size={15} /> Reset progress</button>}
+        {(completedIds.length > 0 || completedProblemIds.length > 0) && <button className="ghost-button" onClick={onReset}><RotateCcw size={15} /> Reset progress</button>}
       </section>
 
       <div className="pattern-grid">
@@ -51,7 +52,15 @@ export function Dashboard({ completedIds, completedProblemIds, onOpen, onReset }
               <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
               <div className="card-top pattern-progress"><span>{completed}/{items.length} templates</span><span>{problemsCompleted}/{problems.length} problems</span></div>
               <h3>{info.title}</h3><p>{info.description}</p>
-              <button className="topic-start" onClick={() => onOpen(patternId)}><span>Open {info.title} pattern</span><ArrowRight size={16} /></button>
+              <div className="drill-list">
+                {items.map((drill) => (
+                  <button key={drill.id} onClick={() => onOpenDrill(patternId, drill.id)}>
+                    <span className={completedIds.includes(drill.id) ? "status complete" : "status"}>{completedIds.includes(drill.id) && <Check size={13} />}</span>
+                    <span>{drill.title}</span><ArrowRight size={16} />
+                  </button>
+                ))}
+                <button className="pattern-overview-link" onClick={() => onOpenPattern(patternId)}><span /><span>View all templates & problems</span><ArrowRight size={16} /></button>
+              </div>
             </article>
           );
         })}

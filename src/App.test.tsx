@@ -5,7 +5,10 @@ import App from "./App";
 import { drills } from "./config/practiceCatalog.config";
 import { practiceProblems } from "./config/problemCatalog.config";
 
-const openPattern = (name: string) => fireEvent.click(screen.getByRole("button", { name: new RegExp(`open ${name} pattern`, "i") }));
+const openPattern = (name: string) => {
+  const card = screen.getByRole("heading", { name }).closest("article")!;
+  fireEvent.click(within(card).getByRole("button", { name: /view all templates & problems/i }));
+};
 
 describe("App", () => {
   beforeEach(() => {
@@ -32,11 +35,14 @@ describe("App", () => {
     expect(screen.getByLabelText(`0 of ${drills.length} drills completed; 0 of ${practiceProblems.length} problems completed`)).toBeInTheDocument();
   });
 
-  it("opens a template added from the requirements document", () => {
+  it("opens a template directly from its pattern card and shows mapped problems", () => {
     render(<App />);
-    openPattern("Linked List");
-    fireEvent.click(screen.getByRole("button", { name: /reverse a linked list/i }));
+    const card = screen.getByRole("heading", { name: "Linked List" }).closest("article")!;
+    fireEvent.click(within(card).getByRole("button", { name: /reverse a linked list/i }));
+    expect(window.location.pathname).toBe("/practice/linked-list/templates/reverse");
     expect(screen.getByRole("heading", { name: "Reverse a linked list" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /merge two sorted lists/i })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /linked list cycle/i })).not.toBeInTheDocument();
   });
 
   it("renders and opens a newly added graph template", () => {

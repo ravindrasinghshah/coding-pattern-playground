@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { patternInfo } from "./practiceCatalog.config";
+import { drills, patternInfo } from "./practiceCatalog.config";
 import { getProblemsForPattern, practiceProblems } from "./problemCatalog.config";
 import type { PatternId } from "../types";
 
@@ -9,9 +9,11 @@ describe("problem catalog", () => {
     expect(new Set(practiceProblems.map((problem) => problem.url)).size).toBe(practiceProblems.length);
     for (const problem of practiceProblems) {
       expect(patternInfo[problem.patternId]).toBeDefined();
+      expect(drills.some((drill) => drill.id === problem.templateId && drill.patternId === problem.patternId)).toBe(true);
       expect(["Easy", "Medium", "Hard"]).toContain(problem.difficulty);
       expect(problem.url).toMatch(/^https:\/\/leetcode\.com\/problems\/[a-z0-9-]+\/$/);
     }
+    for (const drill of drills) expect(practiceProblems.some((problem) => problem.templateId === drill.id)).toBe(true);
   });
 
   it("provides a progressive six-problem set for every active pattern", () => {

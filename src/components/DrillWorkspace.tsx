@@ -4,14 +4,16 @@ import { javascript } from "@codemirror/lang-javascript";
 import { ArrowLeft, Check, ChevronRight, CircleAlert, ExternalLink, Eye, EyeOff, RotateCcw } from "lucide-react";
 import type { TemplateDrill, ValidationResult } from "../types";
 import { validateDrill } from "../lib/validator";
+import { getProblemsForTemplate } from "../config/problemCatalog.config";
 
-interface Props { drill: TemplateDrill; completed: boolean; onBack: () => void; onComplete: (id: string) => void; }
+interface Props { drill: TemplateDrill; completed: boolean; completedProblemIds: string[]; onBack: () => void; onComplete: (id: string) => void; onToggleProblem: (id: string) => void; }
 
-export function DrillWorkspace({ drill, completed, onBack, onComplete }: Props) {
+export function DrillWorkspace({ drill, completed, completedProblemIds, onBack, onComplete, onToggleProblem }: Props) {
   const [code, setCode] = useState(drill.starterCode);
   const [result, setResult] = useState<ValidationResult | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const extensions = useMemo(() => [javascript({ typescript: true })], []);
+  const relatedProblems = getProblemsForTemplate(drill.id);
 
   const validate = () => {
     const next = validateDrill(code, drill);
@@ -35,6 +37,17 @@ export function DrillWorkspace({ drill, completed, onBack, onComplete }: Props) 
         <aside className="brief-panel">
           <p className="overline">{drill.eyebrow}</p><h1>{drill.title}</h1><p className="prompt">{drill.prompt}</p>
           <div className="mental-model"><span>MENTAL MODEL</span><p>{drill.explanation}</p></div>
+          <div className="related-problems">
+            <div><span>APPLY THIS TEMPLATE</span><small>{relatedProblems.filter((problem) => completedProblemIds.includes(problem.id)).length}/{relatedProblems.length} done</small></div>
+            {relatedProblems.map((problem) => {
+              const complete = completedProblemIds.includes(problem.id);
+              return <div className="related-problem" key={problem.id}>
+                <button className={complete ? "problem-check complete" : "problem-check"} aria-label={`${complete ? "Mark incomplete" : "Mark complete"}: ${problem.title}`} aria-pressed={complete} onClick={() => onToggleProblem(problem.id)}>{complete && <Check size={12} />}</button>
+                <a href={problem.url} target="_blank" rel="noopener noreferrer"><span>{problem.title}</span><ExternalLink size={12} /></a>
+                <span className={`difficulty ${problem.difficulty.toLowerCase()}`}>{problem.difficulty}</span>
+              </div>;
+            })}
+          </div>
           <a href={drill.referenceUrl} target="_blank" rel="noreferrer">Review the pattern <ExternalLink size={14} /></a>
         </aside>
         <section className="editor-panel">

@@ -154,6 +154,7 @@ export type ProblemDifficulty = "Easy" | "Medium" | "Hard";
 export interface PracticeProblem {
   id: string;
   patternId: PatternId;
+  templateId: string;
   title: string;
   difficulty: ProblemDifficulty;
   url: string;
