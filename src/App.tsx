@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, Github, Quote } from "lucide-react";
+import { BarChart3, Github, MessageSquare, Quote } from "lucide-react";
 import { BrowserRouter, Navigate, Route, Routes, matchPath, useLocation, useNavigate } from "react-router-dom";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
@@ -201,6 +201,15 @@ function AppShell() {
           <button type="button" onClick={() => setOpenInfo("disclaimer")}>
             Disclaimer
           </button>
+          <a
+            href="https://forms.gle/kSLvrUCEcg4KRwgc6"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Share feedback (opens in a new tab)"
+          >
+            <MessageSquare size={14} />
+            Share feedback
+          </a>
           <a
             className="github-link"
             href="https://github.com/ravindrasinghshah/coding-pattern-playground"

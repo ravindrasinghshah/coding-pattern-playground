@@ -18,6 +18,15 @@ describe("App", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
   });
   afterEach(() => cleanup());
+
+  it("links users to the feedback form", () => {
+    render(<App />);
+    expect(screen.getByRole("link", { name: /share feedback/i })).toHaveAttribute(
+      "href",
+      "https://forms.gle/kSLvrUCEcg4KRwgc6",
+    );
+  });
+
   it("navigates to a drill and reveals the answer", () => {
     render(<App />);
     openPattern("Two Pointers");
@@ -95,7 +104,7 @@ describe("App", () => {
     expect(screen.getByRole("heading", { name: "Two Pointers" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Trie" })).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: "Find top K elements with heap" })).not.toBeInTheDocument();
-    expect(screen.getAllByRole("link")).toHaveLength(practiceProblems.length + 2);
+    expect(within(screen.getByRole("main")).getAllByRole("link")).toHaveLength(practiceProblems.length);
 
     fireEvent.change(screen.getByRole("searchbox", { name: /search problems/i }), { target: { value: "palindrome" } });
     expect(screen.getByRole("link", { name: /valid palindrome/i })).toBeInTheDocument();
