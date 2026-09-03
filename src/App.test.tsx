@@ -5,6 +5,7 @@ import App from "./App";
 import { drills } from "./config/practiceCatalog.config";
 import { practiceProblems } from "./config/problemCatalog.config";
 import { quizQuestions, quizTopics } from "./config/quizCatalog.config";
+import { THEME_KEY } from "./lib/theme";
 
 const openPattern = (name: string) => {
   const card = screen.getByRole("heading", { name }).closest("article")!;
@@ -25,6 +26,21 @@ describe("App", () => {
       "href",
       "https://forms.gle/kSLvrUCEcg4KRwgc6",
     );
+  });
+
+  it("defaults to light, switches to dark, and persists the preference", () => {
+    render(<App />);
+    expect(document.documentElement).toHaveAttribute("data-theme", "light");
+    fireEvent.click(screen.getByRole("button", { name: /switch to dark theme/i }));
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(localStorage.getItem(THEME_KEY)).toBe("dark");
+  });
+
+  it("restores a saved dark theme", () => {
+    localStorage.setItem(THEME_KEY, "dark");
+    render(<App />);
+    expect(document.documentElement).toHaveAttribute("data-theme", "dark");
+    expect(screen.getByRole("button", { name: /switch to light theme/i })).toBeInTheDocument();
   });
 
   it("navigates to a drill and reveals the answer", () => {
