@@ -97,7 +97,7 @@ export function ProgressSnapshot({ completedDrillIds, completedProblemIds, compl
     {items.map((item) => <li key={item.id}>
       <button type="button" onClick={() => onNavigate(item.path)} aria-label={`Continue ${item.title}: ${item.completed} of ${item.total} complete`}>
         <span className="remaining-item-copy"><strong>{item.title}</strong><em>{item.detail}</em></span>
-        <span className="remaining-item-progress"><b>{percentage(item.completed, item.total)}%</b><i><span style={{ width: `${percentage(item.completed, item.total)}%` }} /></i></span>
+        <span className="remaining-item-progress"><b>{percentage(item.completed, item.total)}%</b><progress value={item.completed} max={item.total} aria-label={`${percentage(item.completed, item.total)}% complete`} /></span>
         <ArrowRight size={16} aria-hidden="true" />
       </button>
     </li>)}
@@ -129,13 +129,13 @@ export function ProgressSnapshot({ completedDrillIds, completedProblemIds, compl
 
           <section className="progress-metrics" aria-label="Progress by learning area">
             <button type="button" className="progress-metric" onClick={() => onNavigate("/practice")}>
-              <span>Completed</span><strong>{completedTemplateCount}<small> / {templateTotal}</small></strong><i><b style={{ width: `${percentage(completedTemplateCount, templateTotal)}%` }} /></i>
+              <span>Completed</span><strong>{completedTemplateCount}<small> / {templateTotal}</small></strong><progress value={completedTemplateCount} max={templateTotal} aria-label={`${percentage(completedTemplateCount, templateTotal)}% complete`} />
             </button>
             <button type="button" className="progress-metric" onClick={() => onNavigate("/problems")}>
-              <span>Solved</span><strong>{completedProblemCount}<small> / {problemTotal}</small></strong><i><b style={{ width: `${percentage(completedProblemCount, problemTotal)}%` }} /></i>
+              <span>Solved</span><strong>{completedProblemCount}<small> / {problemTotal}</small></strong><progress value={completedProblemCount} max={problemTotal} aria-label={`${percentage(completedProblemCount, problemTotal)}% complete`} />
             </button>
             <button type="button" className="progress-metric" onClick={() => onNavigate("/quiz")}>
-              <span>Completed</span><strong>{completedQuizCount}<small> / {quizTotal}</small></strong><i><b style={{ width: `${percentage(completedQuizCount, quizTotal)}%` }} /></i>
+              <span>Completed</span><strong>{completedQuizCount}<small> / {quizTotal}</small></strong><progress value={completedQuizCount} max={quizTotal} aria-label={`${percentage(completedQuizCount, quizTotal)}% complete`} />
             </button>
           </section>
 

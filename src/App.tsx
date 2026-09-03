@@ -1,6 +1,21 @@
 import { useEffect, useRef, useState } from "react";
-import { BarChart3, Github, MessageSquare, Quote } from "lucide-react";
-import { BrowserRouter, Navigate, Route, Routes, matchPath, useLocation, useNavigate } from "react-router-dom";
+import {
+  BarChart3,
+  Github,
+  MessageSquare,
+  Moon,
+  Quote,
+  Sun,
+} from "lucide-react";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  matchPath,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { Dashboard } from "./components/Dashboard";
 import { DrillWorkspace } from "./components/DrillWorkspace";
 import { PatternDetail } from "./components/PatternDetail";
@@ -32,6 +47,7 @@ import {
   saveQuizProgress,
 } from "./lib/quiz";
 import { trackPageView } from "./lib/analytics";
+import { applyTheme, loadTheme, saveTheme, type Theme } from "./lib/theme";
 import type { PatternId, SavedProgressV2, SavedQuizProgressV1 } from "./types";
 
 const drillSlug = (patternId: PatternId, drillId: string) => {
@@ -42,6 +58,7 @@ const drillSlug = (patternId: PatternId, drillId: string) => {
 function AppShell() {
   const [openInfo, setOpenInfo] = useState<"disclaimer" | "faq" | null>(null);
   const [isProgressSnapshotOpen, setIsProgressSnapshotOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>(() => loadTheme());
   const progressButtonRef = useRef<HTMLButtonElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -51,25 +68,61 @@ function AppShell() {
   const [quizProgress, setQuizProgress] = useState<SavedQuizProgressV1>(() =>
     loadQuizProgress(),
   );
-  const drillMatch = matchPath("/practice/:patternId/templates/:templateId", location.pathname);
+  const drillMatch = matchPath(
+    "/practice/:patternId/templates/:templateId",
+    location.pathname,
+  );
   const patternMatch = matchPath("/practice/:patternId", location.pathname);
   const quizMatch = matchPath("/quiz/:topicId", location.pathname);
-  const routePatternId = (drillMatch?.params.patternId ?? patternMatch?.params.patternId) as PatternId | undefined;
-  const activePatternId = routePatternId && patternInfo[routePatternId] && !patternInfo[routePatternId].comingSoon ? routePatternId : undefined;
-  const active = activePatternId && drillMatch?.params.templateId
-    ? drills.find((drill) => drill.patternId === activePatternId && drillSlug(activePatternId, drill.id) === drillMatch.params.templateId)
+  const routePatternId = (drillMatch?.params.patternId ??
+    patternMatch?.params.patternId) as PatternId | undefined;
+  const activePatternId =
+    routePatternId &&
+    patternInfo[routePatternId] &&
+    !patternInfo[routePatternId].comingSoon
+      ? routePatternId
+      : undefined;
+  const active =
+    activePatternId && drillMatch?.params.templateId
+      ? drills.find(
+          (drill) =>
+            drill.patternId === activePatternId &&
+            drillSlug(activePatternId, drill.id) ===
+              drillMatch.params.templateId,
+        )
+      : undefined;
+  const activeTopic = quizMatch?.params.topicId
+    ? getQuizTopic(quizMatch.params.topicId)
     : undefined;
-  const activeTopic = quizMatch?.params.topicId ? getQuizTopic(quizMatch.params.topicId) : undefined;
+  useEffect(() => {
+    applyTheme(theme);
+  }, [theme]);
   useEffect(() => {
     if (active) {
-      trackPageView(location.pathname, `${active.title} | Coding Pattern Playground`);
+      trackPageView(
+        location.pathname,
+        `${active.title} | Coding Pattern Playground`,
+      );
     } else if (activePatternId) {
-      trackPageView(location.pathname, `${patternInfo[activePatternId].title} | Coding Pattern Playground`);
+      trackPageView(
+        location.pathname,
+        `${patternInfo[activePatternId].title} | Coding Pattern Playground`,
+      );
     } else if (activeTopic) {
-      trackPageView(location.pathname, `${activeTopic.title} Quiz | Coding Pattern Playground`);
+      trackPageView(
+        location.pathname,
+        `${activeTopic.title} Quiz | Coding Pattern Playground`,
+      );
     } else {
-      const section = location.pathname.startsWith("/quiz") ? "Quiz" : location.pathname.startsWith("/problems") ? "Problems" : "Practice";
-      trackPageView(location.pathname, `${section} | Coding Pattern Playground`);
+      const section = location.pathname.startsWith("/quiz")
+        ? "Quiz"
+        : location.pathname.startsWith("/problems")
+          ? "Problems"
+          : "Practice";
+      trackPageView(
+        location.pathname,
+        `${section} | Coding Pattern Playground`,
+      );
     }
   }, [location.pathname, active, activePatternId, activeTopic]);
   const knownQuizIds = quizProgress.completedQuestionIds.filter((id) =>
@@ -95,7 +148,9 @@ function AppShell() {
     });
   const resetProgress = () => {
     if (
-      !window.confirm("Reset all completed templates and problems? This cannot be undone.")
+      !window.confirm(
+        "Reset all completed templates and problems? This cannot be undone.",
+      )
     )
       return;
     setProgress(clearProgress());
@@ -134,14 +189,16 @@ function AppShell() {
     setIsProgressSnapshotOpen(false);
     navigate(path);
   };
+  const toggleTheme = () => {
+    const nextTheme: Theme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    saveTheme(nextTheme);
+  };
   return (
     <div className="app-shell">
       <AnnouncementBanner />
       <nav className="top-nav">
-        <button
-          className="brand"
-          onClick={() => navigate("/practice")}
-        >
+        <button className="brand" onClick={() => navigate("/practice")}>
           <span>
             <img src="/app-logo.jpg" alt="" />
           </span>
@@ -151,47 +208,175 @@ function AppShell() {
           <div className="page-nav">
             <button
               className={
-                location.pathname.startsWith("/practice") ? "page-nav-button active" : "page-nav-button"
+                location.pathname.startsWith("/practice")
+                  ? "page-nav-button active"
+                  : "page-nav-button"
               }
               onClick={() => navigate("/practice")}
             >
               Practice
             </button>
             <button
-              className={location.pathname.startsWith("/problems") ? "page-nav-button active" : "page-nav-button"}
+              className={
+                location.pathname.startsWith("/problems")
+                  ? "page-nav-button active"
+                  : "page-nav-button"
+              }
               onClick={() => navigate("/problems")}
             >
               Problems
             </button>
             <button
               className={
-                location.pathname.startsWith("/quiz") ? "page-nav-button active" : "page-nav-button"
+                location.pathname.startsWith("/quiz")
+                  ? "page-nav-button active"
+                  : "page-nav-button"
               }
               onClick={() => navigate("/quiz")}
             >
               Quiz
             </button>
           </div>
-          <button ref={progressButtonRef} className="progress-button" type="button" onClick={() => setIsProgressSnapshotOpen(true)} aria-label="Open progress snapshot">
-            <BarChart3 size={16} aria-hidden="true" /><span>Progress</span>
+          <button
+            ref={progressButtonRef}
+            className="progress-button"
+            type="button"
+            onClick={() => setIsProgressSnapshotOpen(true)}
+            aria-label="Open progress snapshot"
+          >
+            <BarChart3 size={16} aria-hidden="true" />
+            <span>Progress</span>
+          </button>
+          <button
+            className="theme-toggle"
+            type="button"
+            onClick={toggleTheme}
+            aria-label={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+            aria-pressed={theme === "dark"}
+            title={`Switch to ${theme === "light" ? "dark" : "light"} theme`}
+          >
+            {theme === "light" ? (
+              <Moon size={16} aria-hidden="true" />
+            ) : (
+              <Sun size={16} aria-hidden="true" />
+            )}
           </button>
         </div>
       </nav>
       <Routes>
         <Route path="/" element={<Navigate to="/practice" replace />} />
-        <Route path="/practice" element={<Dashboard completedIds={knownCompletedIds} completedProblemIds={knownProblemIds} onOpenPattern={(id) => navigate(`/practice/${id}`)} onOpenDrill={(patternId, id) => navigate(`/practice/${patternId}/templates/${drillSlug(patternId, id)}`)} onReset={resetProgress} />} />
-        <Route path="/practice/:patternId" element={activePatternId ? <PatternDetail patternId={activePatternId} completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} onBack={() => navigate("/practice")} onOpenDrill={(id) => navigate(`/practice/${activePatternId}/templates/${drillSlug(activePatternId, id)}`)} onToggleProblem={markProblem} /> : <Navigate to="/practice" replace />} />
-        <Route path="/practice/:patternId/templates/:templateId" element={active && activePatternId ? <DrillWorkspace key={active.id} drill={active} completed={knownCompletedIds.includes(active.id)} completedProblemIds={knownProblemIds} onBack={() => navigate(`/practice/${activePatternId}`)} onComplete={markComplete} onToggleProblem={markProblem} /> : <Navigate to={activePatternId ? `/practice/${activePatternId}` : "/practice"} replace />} />
-        <Route path="/problems" element={<ProblemsDashboard completedProblemIds={knownProblemIds} onToggleProblem={markProblem} />} />
-        <Route path="/quiz" element={<QuizDashboard completedIds={knownQuizIds} onOpen={(id) => navigate(`/quiz/${id}`)} onReset={resetQuizProgress} onResetTopic={resetQuizTopicProgress} />} />
-        <Route path="/quiz/:topicId" element={activeTopic ? <QuizWorkspace topicTitle={activeTopic.title} questions={getQuizQuestions(activeTopic.id)} completedIds={knownQuizIds} onBack={() => navigate("/quiz")} onComplete={markQuizComplete} /> : <Navigate to="/quiz" replace />} />
+        <Route
+          path="/practice"
+          element={
+            <Dashboard
+              completedIds={knownCompletedIds}
+              completedProblemIds={knownProblemIds}
+              onOpenPattern={(id) => navigate(`/practice/${id}`)}
+              onOpenDrill={(patternId, id) =>
+                navigate(
+                  `/practice/${patternId}/templates/${drillSlug(patternId, id)}`,
+                )
+              }
+              onReset={resetProgress}
+            />
+          }
+        />
+        <Route
+          path="/practice/:patternId"
+          element={
+            activePatternId ? (
+              <PatternDetail
+                patternId={activePatternId}
+                completedDrillIds={knownCompletedIds}
+                completedProblemIds={knownProblemIds}
+                onBack={() => navigate("/practice")}
+                onOpenDrill={(id) =>
+                  navigate(
+                    `/practice/${activePatternId}/templates/${drillSlug(activePatternId, id)}`,
+                  )
+                }
+                onToggleProblem={markProblem}
+              />
+            ) : (
+              <Navigate to="/practice" replace />
+            )
+          }
+        />
+        <Route
+          path="/practice/:patternId/templates/:templateId"
+          element={
+            active && activePatternId ? (
+              <DrillWorkspace
+                key={active.id}
+                drill={active}
+                theme={theme}
+                completed={knownCompletedIds.includes(active.id)}
+                completedProblemIds={knownProblemIds}
+                onBack={() => navigate(`/practice/${activePatternId}`)}
+                onComplete={markComplete}
+                onToggleProblem={markProblem}
+              />
+            ) : (
+              <Navigate
+                to={
+                  activePatternId ? `/practice/${activePatternId}` : "/practice"
+                }
+                replace
+              />
+            )
+          }
+        />
+        <Route
+          path="/problems"
+          element={
+            <ProblemsDashboard
+              completedProblemIds={knownProblemIds}
+              onToggleProblem={markProblem}
+            />
+          }
+        />
+        <Route
+          path="/quiz"
+          element={
+            <QuizDashboard
+              completedIds={knownQuizIds}
+              onOpen={(id) => navigate(`/quiz/${id}`)}
+              onReset={resetQuizProgress}
+              onResetTopic={resetQuizTopicProgress}
+            />
+          }
+        />
+        <Route
+          path="/quiz/:topicId"
+          element={
+            activeTopic ? (
+              <QuizWorkspace
+                topicTitle={activeTopic.title}
+                questions={getQuizQuestions(activeTopic.id)}
+                completedIds={knownQuizIds}
+                onBack={() => navigate("/quiz")}
+                onComplete={markQuizComplete}
+              />
+            ) : (
+              <Navigate to="/quiz" replace />
+            )
+          }
+        />
         <Route path="*" element={<Navigate to="/practice" replace />} />
       </Routes>
-      {isProgressSnapshotOpen && <ProgressSnapshot completedDrillIds={knownCompletedIds} completedProblemIds={knownProblemIds} completedQuizIds={knownQuizIds} onClose={closeProgressSnapshot} onNavigate={navigateFromProgressSnapshot} />}
+      {isProgressSnapshotOpen && (
+        <ProgressSnapshot
+          completedDrillIds={knownCompletedIds}
+          completedProblemIds={knownProblemIds}
+          completedQuizIds={knownQuizIds}
+          onClose={closeProgressSnapshot}
+          onNavigate={navigateFromProgressSnapshot}
+        />
+      )}
       <footer>
         <span>Coding Pattern Playground @ {new Date().getFullYear()}</span>
         <span>
-          <Quote size={8}/>
+          <Quote size={8} />
           Your code never leaves this browser.
         </span>
         <nav className="footer-links" aria-label="Information">
@@ -202,6 +387,7 @@ function AppShell() {
             Disclaimer
           </button>
           <a
+            className="footer-link"
             href="https://forms.gle/kSLvrUCEcg4KRwgc6"
             target="_blank"
             rel="noreferrer"
@@ -211,7 +397,7 @@ function AppShell() {
             Share feedback
           </a>
           <a
-            className="github-link"
+            className="footer-link"
             href="https://github.com/ravindrasinghshah/coding-pattern-playground"
             target="_blank"
             rel="noreferrer"
@@ -305,5 +491,9 @@ function AppShell() {
 }
 
 export default function App() {
-  return <BrowserRouter><AppShell /></BrowserRouter>;
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
+  );
 }

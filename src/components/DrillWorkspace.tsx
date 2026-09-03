@@ -5,10 +5,11 @@ import { ArrowLeft, Check, ChevronRight, CircleAlert, ExternalLink, Eye, EyeOff,
 import type { TemplateDrill, ValidationResult } from "../types";
 import { validateDrill } from "../lib/validator";
 import { getProblemsForTemplate } from "../config/problemCatalog.config";
+import type { Theme } from "../lib/theme";
 
-interface Props { drill: TemplateDrill; completed: boolean; completedProblemIds: string[]; onBack: () => void; onComplete: (id: string) => void; onToggleProblem: (id: string) => void; }
+interface Props { drill: TemplateDrill; theme: Theme; completed: boolean; completedProblemIds: string[]; onBack: () => void; onComplete: (id: string) => void; onToggleProblem: (id: string) => void; }
 
-export function DrillWorkspace({ drill, completed, completedProblemIds, onBack, onComplete, onToggleProblem }: Props) {
+export function DrillWorkspace({ drill, theme, completed, completedProblemIds, onBack, onComplete, onToggleProblem }: Props) {
   const [code, setCode] = useState(drill.starterCode);
   const [result, setResult] = useState<ValidationResult | null>(null);
   const [showAnswer, setShowAnswer] = useState(false);
@@ -52,7 +53,7 @@ export function DrillWorkspace({ drill, completed, completedProblemIds, onBack, 
         </aside>
         <section className="editor-panel">
           <div className="editor-toolbar"><div><i /><span>solution.ts</span></div><span>TypeScript</span></div>
-          <CodeMirror value={code} height="430px" extensions={extensions} onChange={(value) => { setCode(value); setResult(null); }} theme="dark" basicSetup={{ foldGutter: false, dropCursor: false, allowMultipleSelections: false }} />
+          <CodeMirror value={code} height="430px" extensions={extensions} onChange={(value) => { setCode(value); setResult(null); }} theme={theme} basicSetup={{ foldGutter: false, dropCursor: false, allowMultipleSelections: false }} />
           <div className="editor-actions">
             <button className="icon-button" onClick={reset}><RotateCcw size={16} /> Reset</button>
             <button className="icon-button" onClick={() => setShowAnswer((shown) => !shown)}>{showAnswer ? <EyeOff size={16} /> : <Eye size={16} />}{showAnswer ? "Hide answer" : "Show answer"}</button>

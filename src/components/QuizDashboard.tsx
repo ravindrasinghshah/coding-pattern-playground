@@ -39,7 +39,7 @@ export function QuizDashboard({ completedIds, onOpen, onReset, onResetTopic }: P
           const completed = questions.filter((question) => completedIds.includes(question.id)).length;
           return <article className={`pattern-card ${topic.accent}`} key={topic.id}>
             <div className="card-number">{String(index + 1).padStart(2, "0")}</div>
-            <div className="card-top"><span>{completed}/{questions.length} complete</span><div className="mini-progress"><i style={{ width: `${completed / questions.length * 100}%` }} /></div>{completed > 0 && <button className="topic-reset" aria-label={`Reset ${topic.title} progress`} title={`Reset ${topic.title} progress`} onClick={() => onResetTopic(topic.id)}><RotateCcw size={13} /></button>}</div>
+            <div className="card-top"><span>{completed}/{questions.length} complete</span><progress className="mini-progress" value={completed} max={questions.length} aria-label={`${completed} of ${questions.length} questions complete`} />{completed > 0 && <button className="topic-reset" aria-label={`Reset ${topic.title} progress`} title={`Reset ${topic.title} progress`} onClick={() => onResetTopic(topic.id)}><RotateCcw size={13} /></button>}</div>
             <h3>{topic.title}</h3><p>{topic.description}</p>
             <button className="topic-start" onClick={() => onOpen(topic.id)}><span>{completed === questions.length ? <Check size={14} /> : "Start review"}</span><ArrowRight size={16} /></button>
           </article>;
