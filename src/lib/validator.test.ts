@@ -1,28 +1,55 @@
 import { describe, expect, it } from "vitest";
 import ts from "typescript";
 import requirementsMarkdown from "../data/code-templates.md?raw";
-import { codeTemplateRequirementDrillIds, drills } from "../config/practiceCatalog.config";
+import {
+  codeTemplateRequirementDrillIds,
+  drills,
+} from "../config/practiceCatalog.config";
 import { validateDrill } from "./validator";
 import type { TemplateDrill } from "../types";
 
 const drillById = (id: string) => drills.find((drill) => drill.id === id)!;
 
 const renamedRequirementVariants = [
-  ["two-input exhaustion", "two-pointers-two-inputs", `const walk = (a: number[], b: number[]) => {
+  [
+    "two-input exhaustion",
+    "two-pointers-two-inputs",
+    `const walk = (a: number[], b: number[]) => {
     let x = 0, y = 0, total = 0;
     while (x < a.length && y < b.length) { if (a[x] < b[y]) x += 1; else y = y + 1; }
     while (x < a.length) x++;
     while (y < b.length) y++;
     return total;
-  };`],
-  ["prefix construction", "prefix-sum-build", `const accumulate = (items: number[]) => {
+  };`,
+  ],
+  [
+    "prefix construction",
+    "prefix-sum-build",
+    `const accumulate = (items: number[]) => {
     const totals = [items[0]];
     for (let position = 1; position < items.length; position += 1) {
       totals.push(items[position] + totals[totals.length - 1]);
     }
     return totals;
-  };`],
-  ["prefix-frequency counting", "prefix-sum-exact-subarrays", `const count = (items: number[], goal: number) => {
+  };`,
+  ],
+  [
+    "suffix minimum construction",
+    "suffix-min-build",
+    `const build = (items: number[]) => {
+    const suffixes = new Array<number>(items.length);
+    if (items.length === 0) return suffixes;
+    suffixes[items.length - 1] = items[items.length - 1];
+    for (let position = items.length - 2; position >= 0; position--) {
+      suffixes[position] = Math.min(items[position], suffixes[position + 1]);
+    }
+    return suffixes;
+  };`,
+  ],
+  [
+    "prefix-frequency counting",
+    "prefix-sum-exact-subarrays",
+    `const count = (items: number[], goal: number) => {
     const seen = new Map<number, number>(); seen.set(0, 1);
     let matches = 0, sum = 0;
     for (const item of items) {
@@ -31,26 +58,42 @@ const renamedRequirementVariants = [
       seen.set(sum, 1 + (seen.get(sum) ?? 0));
     }
     return matches;
-  };`],
-  ["array string building", "string-building-array-join", `const assemble = (items: string[]) => {
+  };`,
+  ],
+  [
+    "array string building",
+    "string-building-array-join",
+    `const assemble = (items: string[]) => {
     const buffer: string[] = [];
     for (const item of items) buffer.push(item);
     return buffer.join("");
-  };`],
-  ["string concatenation", "string-building-concatenation", `const assemble = (items: string[]) => {
+  };`,
+  ],
+  [
+    "string concatenation",
+    "string-building-concatenation",
+    `const assemble = (items: string[]) => {
     let output = "";
     for (const item of items) output = output + item;
     return output;
-  };`],
-  ["fast and slow pointers", "linked-list-fast-slow", `const inspect = (start: any) => {
+  };`,
+  ],
+  [
+    "fast and slow pointers",
+    "linked-list-fast-slow",
+    `const inspect = (start: any) => {
     let walker = start, runner = start, result = 0;
     while (runner !== null && runner.next !== null) {
       walker = walker.next;
       runner = runner.next.next;
     }
     return result;
-  };`],
-  ["linked-list reversal", "linked-list-reverse", `const flip = (start: any) => {
+  };`,
+  ],
+  [
+    "linked-list reversal",
+    "linked-list-reverse",
+    `const flip = (start: any) => {
     let node = start, before = null;
     while (node) {
       const after = node.next;
@@ -59,29 +102,45 @@ const renamedRequirementVariants = [
       node = after;
     }
     return before;
-  };`],
-  ["monotonic stack", "monotonic-stack-increasing", `const scan = (items: number[]) => {
+  };`,
+  ],
+  [
+    "monotonic stack",
+    "monotonic-stack-increasing",
+    `const scan = (items: number[]) => {
     const candidates: number[] = []; let result = 0;
     for (const item of items) {
       while (candidates.length !== 0 && item < candidates[candidates.length - 1]) candidates.pop();
       candidates.push(item);
     }
     return result;
-  };`],
-  ["decreasing monotonic stack", "monotonic-stack-decreasing", `const inspect = (items: number[]) => {
+  };`,
+  ],
+  [
+    "decreasing monotonic stack",
+    "monotonic-stack-decreasing",
+    `const inspect = (items: number[]) => {
     const candidates: number[] = []; let result = 0;
     for (const item of items) {
       while (candidates.length !== 0 && item > candidates[candidates.length - 1]) candidates.pop();
       candidates.push(item);
     }
     return result;
-  };`],
-  ["recursive tree traversal", "binary-tree-dfs-recursive", `const visit = (node: any): number => {
+  };`,
+  ],
+  [
+    "recursive tree traversal",
+    "binary-tree-dfs-recursive",
+    `const visit = (node: any): number => {
     if (node === null) return 0;
     const a = visit(node.left), b = visit(node.right);
     return 1 + a + b;
-  };`],
-  ["iterative tree traversal", "binary-tree-dfs-iterative", `const visit = (start: any) => {
+  };`,
+  ],
+  [
+    "iterative tree traversal",
+    "binary-tree-dfs-iterative",
+    `const visit = (start: any) => {
     const pending = [start]; let result = 0;
     while (pending.length) {
       const node = pending.pop();
@@ -89,8 +148,12 @@ const renamedRequirementVariants = [
       if (node.right !== null) pending.push(node.right);
     }
     return result;
-  };`],
-  ["level-order tree traversal", "binary-tree-bfs", `const visit = (start: any) => {
+  };`,
+  ],
+  [
+    "level-order tree traversal",
+    "binary-tree-bfs",
+    `const visit = (start: any) => {
     let pending = [start], result = 0;
     while (pending.length) {
       const width = pending.length;
@@ -103,21 +166,38 @@ const renamedRequirementVariants = [
       pending = following;
     }
     return result;
-  };`],
+  };`,
+  ],
 ] as const;
 
 describe("validateDrill", () => {
   it("keeps the practice catalog exactly aligned with the requirements document", () => {
-    const codeBlocks = [...requirementsMarkdown.matchAll(/```(?:\w+)?\s*\r?\n([\s\S]*?)```/g)].map((match) => match[1]);
+    const codeBlocks = [
+      ...requirementsMarkdown.matchAll(/```(?:\w+)?\s*\r?\n([\s\S]*?)```/g),
+    ].map((match) => match[1]);
     const implementationCount = codeBlocks.reduce((count, code, index) => {
-      const source = ts.createSourceFile(`requirement-${index}.ts`, code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+      const source = ts.createSourceFile(
+        `requirement-${index}.ts`,
+        code,
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TS,
+      );
       const parsed = source.statements.reduce((statementCount, statement) => {
-        if (ts.isFunctionDeclaration(statement) && statement.body) return statementCount + 1;
+        if (ts.isFunctionDeclaration(statement) && statement.body)
+          return statementCount + 1;
         if (!ts.isVariableStatement(statement)) return statementCount;
-        return statementCount + statement.declarationList.declarations.filter((declaration) => {
-          const initializer = declaration.initializer;
-          return Boolean(initializer && (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)));
-        }).length;
+        return (
+          statementCount +
+          statement.declarationList.declarations.filter((declaration) => {
+            const initializer = declaration.initializer;
+            return Boolean(
+              initializer &&
+              (ts.isArrowFunction(initializer) ||
+                ts.isFunctionExpression(initializer)),
+            );
+          }).length
+        );
       }, 0);
       // The requirements intentionally use `OTHER_ARGUMENTS...` pseudocode in
       // the backtracking signature, which TypeScript recovers without exposing
@@ -125,29 +205,44 @@ describe("validateDrill", () => {
       // executable template in the practice catalog.
       return count + (parsed || (/\blet\s+backtrack\s*=/.test(code) ? 1 : 0));
     }, 0);
-    expect(new Set(codeTemplateRequirementDrillIds).size).toBe(codeTemplateRequirementDrillIds.length);
+    expect(new Set(codeTemplateRequirementDrillIds).size).toBe(
+      codeTemplateRequirementDrillIds.length,
+    );
     expect(codeTemplateRequirementDrillIds).toHaveLength(implementationCount);
     expect(drills).toHaveLength(implementationCount);
-    expect(drills.map((drill) => drill.id).sort()).toEqual([...codeTemplateRequirementDrillIds].sort());
+    expect(drills.map((drill) => drill.id).sort()).toEqual(
+      [...codeTemplateRequirementDrillIds].sort(),
+    );
   });
 
   it("keeps catalog IDs unique", () => {
     expect(new Set(drills.map((drill) => drill.id)).size).toBe(drills.length);
   });
 
-  it.each(drills.map((drill) => [drill.title, drill] as const))("accepts the canonical %s template", (_, drill) => {
-    expect(validateDrill(drill.canonicalCode, drill)).toMatchObject({ valid: true, syntaxErrors: [] });
-  });
+  it.each(drills.map((drill) => [drill.title, drill] as const))(
+    "accepts the canonical %s template",
+    (_, drill) => {
+      expect(validateDrill(drill.canonicalCode, drill)).toMatchObject({
+        valid: true,
+        syntaxErrors: [],
+      });
+    },
+  );
 
   it("accepts alternate names and formatting", () => {
-    const drill = drills.find((item) => item.id === "two-pointers-opposite-ends")!;
+    const drill = drills.find(
+      (item) => item.id === "two-pointers-opposite-ends",
+    )!;
     const code = `const work = (items: number[]) => { let a = 0, b = items.length - 1; while (a < b) { if (items[a] > items[b]) { b--; } else { a++; } } return a; };`;
     expect(validateDrill(code, drill).valid).toBe(true);
   });
 
-  it.each(renamedRequirementVariants)("accepts renamed %s structures", (_, drillId, code) => {
-    expect(validateDrill(code, drillById(drillId)).valid).toBe(true);
-  });
+  it.each(renamedRequirementVariants)(
+    "accepts renamed %s structures",
+    (_, drillId, code) => {
+      expect(validateDrill(code, drillById(drillId)).valid).toBe(true);
+    },
+  );
 
   it("requires both cleanup loops for two-input traversal", () => {
     const code = `function walk(a: number[], b: number[]) {
@@ -157,7 +252,9 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("two-pointers-two-inputs"));
-    expect(result.checks.find((check) => check.ruleId === "tail-exhaustion")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "tail-exhaustion")?.passed,
+    ).toBe(false);
   });
 
   it("requires strict input bounds and one-step moves for two-input traversal", () => {
@@ -168,7 +265,9 @@ describe("validateDrill", () => {
       while (y <= b.length) y += 10;
       return answer;
     }`;
-    expect(validateDrill(code, drillById("two-pointers-two-inputs")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("two-pointers-two-inputs")).valid,
+    ).toBe(false);
   });
 
   it("requires each prefix value to use both the previous prefix and current input", () => {
@@ -178,7 +277,10 @@ describe("validateDrill", () => {
       return prefix;
     }`;
     const result = validateDrill(code, drillById("prefix-sum-build"));
-    expect(result.checks.find((check) => check.ruleId === "prefix-accumulation")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "prefix-accumulation")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("does not mistake unrelated arithmetic for prefix addition", () => {
@@ -189,7 +291,9 @@ describe("validateDrill", () => {
       }
       return prefix;
     }`;
-    expect(validateDrill(code, drillById("prefix-sum-build")).valid).toBe(false);
+    expect(validateDrill(code, drillById("prefix-sum-build")).valid).toBe(
+      false,
+    );
   });
 
   it("accepts indexed prefix-array assignment", () => {
@@ -199,6 +303,20 @@ describe("validateDrill", () => {
       return prefix;
     }`;
     expect(validateDrill(code, drillById("prefix-sum-build")).valid).toBe(true);
+  });
+
+  it("requires right-to-left minimum aggregation for suffix minimums", () => {
+    const code = `function build(items: number[]) {
+      const suffixes = new Array<number>(items.length);
+      suffixes[items.length - 1] = items[items.length - 1];
+      for (let i = items.length - 2; i >= 0; i--) suffixes[i] = Math.max(items[i], suffixes[i + 1]);
+      return suffixes;
+    }`;
+    const result = validateDrill(code, drillById("suffix-min-build"));
+    expect(
+      result.checks.find((check) => check.ruleId === "suffix-min-accumulation")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("requires a running prefix update before the frequency lookup", () => {
@@ -212,7 +330,10 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("prefix-sum-exact-subarrays"));
-    expect(result.checks.find((check) => check.ruleId === "prefix-frequency-count")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "prefix-frequency-count")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("requires the empty-prefix seed before frequency traversal", () => {
@@ -226,7 +347,9 @@ describe("validateDrill", () => {
       seen.set(0, 1);
       return answer;
     }`;
-    expect(validateDrill(code, drillById("prefix-sum-exact-subarrays")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("prefix-sum-exact-subarrays")).valid,
+    ).toBe(false);
   });
 
   it("rejects unrelated arithmetic in prefix-frequency updates", () => {
@@ -240,7 +363,9 @@ describe("validateDrill", () => {
       }
       return answer;
     }`;
-    expect(validateDrill(code, drillById("prefix-sum-exact-subarrays")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("prefix-sum-exact-subarrays")).valid,
+    ).toBe(false);
   });
 
   it("ties prefix accumulation and return to the same collection", () => {
@@ -249,7 +374,9 @@ describe("validateDrill", () => {
       for (let i = 1; i < items.length; i++) built.push(built[built.length - 1] + items[i]);
       return returned;
     }`;
-    expect(validateDrill(code, drillById("prefix-sum-build")).valid).toBe(false);
+    expect(validateDrill(code, drillById("prefix-sum-build")).valid).toBe(
+      false,
+    );
   });
 
   it("requires a string buffer to append the current iteration value", () => {
@@ -259,7 +386,10 @@ describe("validateDrill", () => {
       return output.join("");
     }`;
     const result = validateDrill(code, drillById("string-building-array-join"));
-    expect(result.checks.find((check) => check.ruleId === "appends-character")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "appends-character")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("rejects transformed values in both string-building variants", () => {
@@ -273,8 +403,13 @@ describe("validateDrill", () => {
       for (const item of items) output += item.length;
       return output;
     }`;
-    expect(validateDrill(buffered, drillById("string-building-array-join")).valid).toBe(false);
-    expect(validateDrill(concatenated, drillById("string-building-concatenation")).valid).toBe(false);
+    expect(
+      validateDrill(buffered, drillById("string-building-array-join")).valid,
+    ).toBe(false);
+    expect(
+      validateDrill(concatenated, drillById("string-building-concatenation"))
+        .valid,
+    ).toBe(false);
   });
 
   it("ties string updates and returns to the same accumulator", () => {
@@ -288,8 +423,13 @@ describe("validateDrill", () => {
       for (const item of items) built += item;
       return returned;
     }`;
-    expect(validateDrill(buffered, drillById("string-building-array-join")).valid).toBe(false);
-    expect(validateDrill(concatenated, drillById("string-building-concatenation")).valid).toBe(false);
+    expect(
+      validateDrill(buffered, drillById("string-building-array-join")).valid,
+    ).toBe(false);
+    expect(
+      validateDrill(concatenated, drillById("string-building-concatenation"))
+        .valid,
+    ).toBe(false);
   });
 
   it("requires linked-list reversal steps in a safe order", () => {
@@ -304,7 +444,10 @@ describe("validateDrill", () => {
       return previous;
     }`;
     const result = validateDrill(code, drillById("linked-list-reverse"));
-    expect(result.checks.find((check) => check.ruleId === "advances-reversal")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "advances-reversal")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("ties the linked-list reversal return to the pointer that builds the reversed list", () => {
@@ -318,7 +461,9 @@ describe("validateDrill", () => {
       }
       return unrelated;
     }`;
-    expect(validateDrill(code, drillById("linked-list-reverse")).valid).toBe(false);
+    expect(validateDrill(code, drillById("linked-list-reverse")).valid).toBe(
+      false,
+    );
   });
 
   it("requires the fast linked-list pointer to advance two links", () => {
@@ -328,7 +473,9 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("linked-list-fast-slow"));
-    expect(result.checks.find((check) => check.ruleId === "fast-slow-steps")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "fast-slow-steps")?.passed,
+    ).toBe(false);
   });
 
   it("accepts an optional-chain fast-pointer guard", () => {
@@ -337,7 +484,9 @@ describe("validateDrill", () => {
       while (fast?.next) { slow = slow.next; fast = fast.next.next; }
       return answer;
     }`;
-    expect(validateDrill(code, drillById("linked-list-fast-slow")).valid).toBe(true);
+    expect(validateDrill(code, drillById("linked-list-fast-slow")).valid).toBe(
+      true,
+    );
   });
 
   it("requires a monotonic-stack push after the shrink loop", () => {
@@ -350,7 +499,9 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("monotonic-stack-increasing"));
-    expect(result.checks.find((check) => check.ruleId === "stack-push")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "stack-push")?.passed,
+    ).toBe(false);
   });
 
   it("rejects an OR condition that does not safely guard stack-top access", () => {
@@ -363,7 +514,10 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("monotonic-stack-increasing"));
-    expect(result.checks.find((check) => check.ruleId === "monotonic-shrink-loop")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "monotonic-shrink-loop")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("rejects monotonic-stack operations hidden in never-taken branches", () => {
@@ -375,13 +529,22 @@ describe("validateDrill", () => {
       }
       return 0;
     }`;
-    expect(validateDrill(code, drillById("monotonic-stack-increasing")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("monotonic-stack-increasing")).valid,
+    ).toBe(false);
   });
 
   it("requires the decreasing-stack comparison direction", () => {
     const drill = drillById("monotonic-stack-decreasing");
-    const code = drill.canonicalCode.replace("stack[stack.length - 1] < value", "stack[stack.length - 1] > value");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "monotonic-shrink-loop")?.passed).toBe(false);
+    const code = drill.canonicalCode.replace(
+      "stack[stack.length - 1] < value",
+      "stack[stack.length - 1] > value",
+    );
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "monotonic-shrink-loop",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("requires recursive DFS to visit both child sides", () => {
@@ -390,7 +553,10 @@ describe("validateDrill", () => {
       return visit(node.left) + visit(node.left);
     }`;
     const result = validateDrill(code, drillById("binary-tree-dfs-recursive"));
-    expect(result.checks.find((check) => check.ruleId === "recursive-child-visits")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "recursive-child-visits")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("requires iterative tree traversal to guard each child push", () => {
@@ -403,37 +569,72 @@ describe("validateDrill", () => {
       return answer;
     }`;
     const result = validateDrill(code, drillById("binary-tree-dfs-iterative"));
-    expect(result.checks.find((check) => check.ruleId === "visits-tree-children")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "visits-tree-children")
+        ?.passed,
+    ).toBe(false);
   });
 
   it("requires graph traversal to track visited nodes", () => {
     const drill = drillById("graph-dfs-iterative");
-    const code = drill.canonicalCode.replace("const seen = new Set<number>([start]);", "const seen = { has: () => false, add: () => undefined };");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "visited-set")?.passed).toBe(false);
+    const code = drill.canonicalCode.replace(
+      "const seen = new Set<number>([start]);",
+      "const seen = { has: () => false, add: () => undefined };",
+    );
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "visited-set",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("requires both binary-search boundary updates", () => {
     const drill = drillById("binary-search");
-    const code = drill.canonicalCode.replace("else left = mid + 1;", "else return mid;");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "binary-search-updates")?.passed).toBe(false);
+    const code = drill.canonicalCode.replace(
+      "else left = mid + 1;",
+      "else return mid;",
+    );
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "binary-search-updates",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("requires backtracking to restore state after recursion", () => {
     const drill = drillById("backtracking");
     const code = drill.canonicalCode.replace("      path.pop();\n", "");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "state-restore")?.passed).toBe(false);
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "state-restore",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("requires memoized recursion to write computed states", () => {
     const drill = drillById("dynamic-programming-top-down");
-    const code = drill.canonicalCode.replace("    memo.set(index, answer);\n", "");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "memo-write")?.passed).toBe(false);
+    const code = drill.canonicalCode.replace(
+      "    memo.set(index, answer);\n",
+      "",
+    );
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "memo-write",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("requires trie insertion to create missing children", () => {
     const drill = drillById("trie-build");
-    const code = drill.canonicalCode.replace("        current.children.set(character, { children: new Map<string, any>() });", "        continue;");
-    expect(validateDrill(code, drill).checks.find((check) => check.ruleId === "trie-child-insert")?.passed).toBe(false);
+    const code = drill.canonicalCode.replace(
+      "        current.children.set(character, { children: new Map<string, any>() });",
+      "        continue;",
+    );
+    expect(
+      validateDrill(code, drill).checks.find(
+        (check) => check.ruleId === "trie-child-insert",
+      )?.passed,
+    ).toBe(false);
   });
 
   it("reports missing concepts", () => {
@@ -446,7 +647,9 @@ describe("validateDrill", () => {
   it("reports syntax locations", () => {
     const result = validateDrill("function broken( {", drills[0]);
     expect(result.valid).toBe(false);
-    expect(result.syntaxErrors[0]).toEqual(expect.objectContaining({ line: 1, column: expect.any(Number) }));
+    expect(result.syntaxErrors[0]).toEqual(
+      expect.objectContaining({ line: 1, column: expect.any(Number) }),
+    );
   });
 
   it("ignores decoy structures in nested helpers", () => {
@@ -461,7 +664,9 @@ describe("validateDrill", () => {
       }
       return 0;
     }`;
-    expect(validateDrill(code, drillById("two-pointers-opposite-ends")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("two-pointers-opposite-ends")).valid,
+    ).toBe(false);
   });
 
   it("validates one complete top-level candidate when helpers are declared first", () => {
@@ -471,7 +676,9 @@ describe("validateDrill", () => {
       for (const item of items) output += item;
       return output;
     }`;
-    expect(validateDrill(code, drillById("string-building-concatenation")).valid).toBe(true);
+    expect(
+      validateDrill(code, drillById("string-building-concatenation")).valid,
+    ).toBe(true);
   });
 
   it("does not combine rule evidence across top-level functions", () => {
@@ -484,7 +691,9 @@ describe("validateDrill", () => {
       let output = "";
       return output;
     }`;
-    expect(validateDrill(code, drillById("string-building-concatenation")).valid).toBe(false);
+    expect(
+      validateDrill(code, drillById("string-building-concatenation")).valid,
+    ).toBe(false);
   });
 
   it("requires updates to mutate the inferred pointer pair", () => {
@@ -497,7 +706,10 @@ describe("validateDrill", () => {
       return score;
     }`;
     const result = validateDrill(code, drillById("two-pointers-opposite-ends"));
-    expect(result.checks.find((check) => check.ruleId === "two-directional-updates")?.passed).toBe(false);
+    expect(
+      result.checks.find((check) => check.ruleId === "two-directional-updates")
+        ?.passed,
+    ).toBe(false);
     expect(result.valid).toBe(false);
   });
 
@@ -510,7 +722,9 @@ describe("validateDrill", () => {
       }
       return start;
     }`;
-    expect(validateDrill(code, drillById("two-pointers-opposite-ends")).valid).toBe(true);
+    expect(
+      validateDrill(code, drillById("two-pointers-opposite-ends")).valid,
+    ).toBe(true);
   });
 
   it("fails safely for an unknown validator variant", () => {

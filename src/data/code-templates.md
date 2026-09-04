@@ -82,6 +82,22 @@ let fn = arr => {
 }
 ```
 
+### Build a suffix Min
+
+```
+let fn = arr => {
+    let n = arr.length;
+    let suffixMin = new Array(n);
+    suffixMin[n-1] = arr[n-1];
+
+    for(let i = n-2; i >= 0; i--){
+        suffixMin[i] = Math.min(arr[i], suffixMin[i+1]);
+    }
+    return suffixMin;
+}
+
+```
+
 ### Efficient string building
 
 ```
