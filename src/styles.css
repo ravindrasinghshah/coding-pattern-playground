@@ -1888,6 +1888,9 @@ footer {
 :root[data-theme="dark"] .dialog-close:hover {
   background: var(--surface-hover);
 }
+:root[data-theme="dark"] .drill-list button {
+  color: #edf0e8;
+}
 :root[data-theme="dark"] .catalog-search:focus-within,
 :root[data-theme="dark"] .progress-button:hover,
 :root[data-theme="dark"] .progress-button:focus-visible,
